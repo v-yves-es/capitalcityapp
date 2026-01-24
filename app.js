@@ -75,6 +75,22 @@ async function initMap() {
         europeData = await response.json();
         console.log('Map data loaded:', europeData.features.length, 'countries');
         
+        // Toon direct alle EU landen in lichtgrijs
+        const euIsoCodes = euCountries.map(c => c.iso);
+        geoJsonLayer = L.geoJSON(europeData, {
+            style: {
+                fillColor: '#e8e8e8',
+                fillOpacity: 0.5,
+                color: '#999',
+                weight: 1
+            },
+            filter: function(feature) {
+                return euIsoCodes.includes(feature.properties.ISO_A3);
+            }
+        }).addTo(map);
+        
+        console.log('EU countries displayed on map');
+        
         setTimeout(() => {
             if (map) map.invalidateSize();
         }, 100);
@@ -100,14 +116,14 @@ function highlightCountry(countryIso) {
             if (feature.properties.ISO_A3 === countryIso) {
                 return {
                     fillColor: '#667eea',
-                    fillOpacity: 0.7,
+                    fillOpacity: 0.8,
                     color: '#764ba2',
                     weight: 3
                 };
             }
             return {
                 fillColor: '#e8e8e8',
-                fillOpacity: 0.4,
+                fillOpacity: 0.5,
                 color: '#999',
                 weight: 1
             };
