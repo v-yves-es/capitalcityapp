@@ -77,19 +77,30 @@ async function initMap() {
         
         // Toon direct alle EU landen in lichtgrijs
         const euIsoCodes = euCountries.map(c => c.iso);
+        console.log('Looking for EU countries with ISO codes:', euIsoCodes);
+        
+        let foundCount = 0;
         geoJsonLayer = L.geoJSON(europeData, {
-            style: {
-                fillColor: '#e8e8e8',
-                fillOpacity: 0.5,
-                color: '#999',
-                weight: 1
+            style: function(feature) {
+                const iso = feature.properties.ISO_A3;
+                const isEU = euIsoCodes.includes(iso);
+                if (isEU) {
+                    foundCount++;
+                    console.log('Found EU country:', feature.properties.ADMIN, iso);
+                }
+                return {
+                    fillColor: isEU ? '#d0d0ff' : '#f5f5f5',
+                    fillOpacity: isEU ? 0.7 : 0.2,
+                    color: isEU ? '#667eea' : '#ccc',
+                    weight: isEU ? 2 : 1
+                };
             },
             filter: function(feature) {
                 return euIsoCodes.includes(feature.properties.ISO_A3);
             }
         }).addTo(map);
         
-        console.log('EU countries displayed on map');
+        console.log('EU countries displayed on map:', foundCount);
         
         setTimeout(() => {
             if (map) map.invalidateSize();
@@ -105,25 +116,34 @@ function highlightCountry(countryIso) {
         return;
     }
     
+    console.log('Highlighting country with ISO:', countryIso);
+    
     if (geoJsonLayer) {
         map.removeLayer(geoJsonLayer);
     }
     
     const euIsoCodes = euCountries.map(c => c.iso);
+    let highlightedCountryName = '';
     
     geoJsonLayer = L.geoJSON(europeData, {
         style: function(feature) {
-            if (feature.properties.ISO_A3 === countryIso) {
+            const iso = feature.properties.ISO_A3;
+            const isTarget = iso === countryIso;
+            
+            if (isTarget) {
+                highlightedCountryName = feature.properties.ADMIN;
+                console.log('Target country found:', highlightedCountryName, iso);
                 return {
                     fillColor: '#667eea',
-                    fillOpacity: 0.8,
+                    fillOpacity: 0.9,
                     color: '#764ba2',
-                    weight: 3
+                    weight: 4
                 };
             }
+            
             return {
-                fillColor: '#e8e8e8',
-                fillOpacity: 0.5,
+                fillColor: '#d0d0ff',
+                fillOpacity: 0.4,
                 color: '#999',
                 weight: 1
             };
@@ -137,9 +157,10 @@ function highlightCountry(countryIso) {
     if (targetCountry) {
         const bounds = L.geoJSON(targetCountry).getBounds();
         map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6, animate: true });
+        console.log('Zoomed to:', highlightedCountryName);
+    } else {
+        console.log('Country not found in GeoJSON:', countryIso);
     }
-    
-    console.log('Highlighted country:', countryIso);
 }
 
 function initQuiz(mode) {
