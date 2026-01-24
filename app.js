@@ -134,8 +134,8 @@ function showResults() {
         const mistakesTable = document.getElementById('mistakesTable');
         mistakesTable.innerHTML = mistakes.map(mistake => `
             <div class="mistake-row">
-                <div class="mistake-question">❓ ${mistake.question}</div>
-                <div class="mistake-answer">✓ ${mistake.answer}</div>
+                <div class="mistake-question">${mistake.question}</div>
+                <div class="mistake-answer">→ ${mistake.answer}</div>
             </div>
         `).join('');
     } else {

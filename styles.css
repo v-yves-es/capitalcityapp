@@ -236,23 +236,28 @@ h2 {
 }
 
 .mistake-row {
-    padding: 1rem 0;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #ef4444;
 }
 
 .mistake-row:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .mistake-question {
-    font-weight: 600;
-    color: #667eea;
-    margin-bottom: 0.3rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
 }
 
 .mistake-answer {
-    color: #10b981;
-    font-weight: 500;
+    color: #059669;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 @media (max-width: 480px) {
