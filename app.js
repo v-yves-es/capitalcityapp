@@ -93,7 +93,11 @@ async function initMap() {
                 const name = f.properties.name;
                 return iso === 'FRA' || name?.toLowerCase().includes('fran');
             });
-            console.log('Found', franceMatches.length, 'France matches:', franceMatches.map(f => f.properties));
+            console.log('Found', franceMatches.length, 'France matches:');
+            franceMatches.forEach(f => {
+                console.log('France ISO:', f.properties['ISO3166-1-Alpha-3'], 'Name:', f.properties.name);
+                console.log('Full France properties:', f.properties);
+            });
         }
         
         let foundCount = 0;
