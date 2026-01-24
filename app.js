@@ -85,6 +85,15 @@ async function initMap() {
         if (europeData.features.length > 0) {
             console.log('Sample country properties:', Object.keys(europeData.features[0].properties));
             console.log('Sample country:', europeData.features[0].properties);
+            
+            // Zoek ALLE landen met FRA in hun ISO code
+            console.log('=== SEARCHING FOR FRANCE ===');
+            const franceMatches = europeData.features.filter(f => {
+                const iso = f.properties['ISO3166-1-Alpha-3'];
+                const name = f.properties.name;
+                return iso === 'FRA' || name?.toLowerCase().includes('fran');
+            });
+            console.log('Found', franceMatches.length, 'France matches:', franceMatches.map(f => f.properties));
         }
         
         let foundCount = 0;
