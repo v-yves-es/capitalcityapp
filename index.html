@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EU Capitals">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <title>EU Landen & Hoofdsteden</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active">
+            <div class="container">
+                <h1>🇪🇺 EU Landen & Hoofdsteden</h1>
+                <p class="subtitle">Leer alle 27 EU-landen en hun hoofdsteden</p>
+                <button id="startBtn" class="btn btn-primary">Start Quiz</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="screen">
+            <div class="container">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Vraag 1 van 27</div>
+                
+                <div id="flashcard" class="flashcard">
+                    <div class="flashcard-content">
+                        <div id="questionText" class="question-text"></div>
+                        <div id="answerText" class="answer-text hidden"></div>
+                    </div>
+                </div>
+
+                <div id="answerButtons" class="answer-buttons hidden">
+                    <button id="wrongBtn" class="btn btn-wrong">
+                        <span class="icon">✗</span>
+                        <span>Fout</span>
+                    </button>
+                    <button id="correctBtn" class="btn btn-correct">
+                        <span class="icon">✓</span>
+                        <span>Goed</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <div class="container">
+                <h1>🎉 Quiz Voltooid!</h1>
+                <div id="scoreDisplay" class="score-display"></div>
+                
+                <div id="mistakesSection" class="mistakes-section hidden">
+                    <h2>📋 Jouw Fouten</h2>
+                    <div id="mistakesTable"></div>
+                </div>
+
+                <button id="restartBtn" class="btn btn-primary">Opnieuw Spelen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+}
+
+.screen {
+    display: none;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+h1 {
+    font-size: 2rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: white;
+    color: #667eea;
+    width: 100%;
+    font-size: 1.3rem;
+    padding: 1.2rem;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: white;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text {
+    color: white;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.flashcard {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.flashcard:active {
+    transform: scale(0.98);
+}
+
+.flashcard::after {
+    content: 'Tik om antwoord te zien';
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: #999;
+    opacity: 0.7;
+}
+
+.flashcard.revealed::after {
+    content: '';
+}
+
+.flashcard-content {
+    text-align: center;
+    width: 100%;
+}
+
+.question-text {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+    line-height: 1.4;
+}
+
+.answer-text {
+    font-size: 1.5rem;
+    color: #764ba2;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e0e0e0;
+    font-weight: 600;
+}
+
+.answer-text.hidden {
+    display: none;
+}
+
+.answer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.answer-buttons.hidden {
+    display: none;
+}
+
+.btn-wrong {
+    background: #ef4444;
+    color: white;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.btn-wrong:active {
+    background: #dc2626;
+}
+
+.btn-correct {
+    background: #10b981;
+    color: white;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.btn-correct:active {
+    background: #059669;
+}
+
+.btn .icon {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.score-display {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.score-display .score {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.score-display .score-text {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.mistakes-section {
+    margin-bottom: 2rem;
+}
+
+.mistakes-section.hidden {
+    display: none;
+}
+
+.mistakes-table {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.mistake-row {
+    padding: 1rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.mistake-row:last-child {
+    border-bottom: none;
+}
+
+.mistake-question {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 0.3rem;
+}
+
+.mistake-answer {
+    color: #10b981;
+    font-weight: 500;
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .question-text {
+        font-size: 1.5rem;
+    }
+
+    .answer-text {
+        font-size: 1.2rem;
+    }
+
+    .flashcard {
+        min-height: 250px;
+        padding: 2rem 1.5rem;
+    }
+}
