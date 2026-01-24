@@ -90,17 +90,16 @@ async function initMap() {
         let foundCount = 0;
         geoJsonLayer = L.geoJSON(europeData, {
             style: function(feature) {
-                const iso = feature.properties['ISO3166-1-Alpha-3'];
+                // Probeer verschillende ISO property namen
+                const iso = feature.properties.ISO_A3 || 
+                           feature.properties['ISO3166-1-Alpha-3'] || 
+                           feature.properties.ADM0_A3;
                 const isEU = euIsoCodes.includes(iso);
-                
-                // Debug Frankrijk specifiek
-                if (feature.properties.name === 'France' || iso === 'FRA') {
-                    console.log('FRANCE DEBUG:', feature.properties.name, 'ISO:', iso, 'isEU:', isEU);
-                }
                 
                 if (isEU) {
                     foundCount++;
-                    console.log('Found EU country:', feature.properties.name, 'ISO:', iso);
+                    const name = feature.properties.NAME || feature.properties.ADMIN || feature.properties.name;
+                    console.log('Found EU country:', name, 'ISO:', iso);
                 }
                 return {
                     fillColor: isEU ? '#d0d0ff' : '#f5f5f5',
@@ -110,7 +109,10 @@ async function initMap() {
                 };
             },
             filter: function(feature) {
-                return euIsoCodes.includes(feature.properties['ISO3166-1-Alpha-3']);
+                const iso = feature.properties.ISO_A3 || 
+                           feature.properties['ISO3166-1-Alpha-3'] || 
+                           feature.properties.ADM0_A3;
+                return euIsoCodes.includes(iso);
             }
         }).addTo(map);
         
@@ -141,11 +143,13 @@ function highlightCountry(countryIso) {
     
     geoJsonLayer = L.geoJSON(europeData, {
         style: function(feature) {
-            const iso = feature.properties['ISO3166-1-Alpha-3'];
+            const iso = feature.properties.ISO_A3 || 
+                       feature.properties['ISO3166-1-Alpha-3'] || 
+                       feature.properties.ADM0_A3;
             const isTarget = iso === countryIso;
             
             if (isTarget) {
-                highlightedCountryName = feature.properties.name;
+                highlightedCountryName = feature.properties.NAME || feature.properties.ADMIN || feature.properties.name;
                 console.log('Target country found:', highlightedCountryName, 'ISO:', iso);
                 return {
                     fillColor: '#667eea',
@@ -163,7 +167,10 @@ function highlightCountry(countryIso) {
             };
         },
         filter: function(feature) {
-            return euIsoCodes.includes(feature.properties['ISO3166-1-Alpha-3']);
+            const iso = feature.properties.ISO_A3 || 
+                       feature.properties['ISO3166-1-Alpha-3'] || 
+                       feature.properties.ADM0_A3;
+            return euIsoCodes.includes(iso);
         }
     }).addTo(map);
     
