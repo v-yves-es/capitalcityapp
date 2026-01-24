@@ -12,29 +12,6 @@ Een mobiele flashcard-app om alle 27 EU-landen en hun hoofdsteden te leren. De a
 - 🎯 Alle 27 EU-landen met Nederlandse namen
 - 🌐 Werkt offline
 
-## 🚀 Installatie op iPhone
-
-### Methode 1: Lokaal testen (zonder server)
-1. Open een Terminal
-2. Ga naar deze map: `cd /Users/seurynck/Documents/AchieveIT/GitHub/capitals-app`
-3. Start een lokale server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-4. Open op je iPhone Safari en ga naar: `http://[jouw-computer-ip]:8000`
-   - Zoek je lokale IP: `ifconfig | grep "inet " | grep -v 127.0.0.1`
-
-### Methode 2: GitHub Pages (aanbevolen)
-1. Maak een GitHub repository
-2. Upload alle bestanden (index.html, app.js, styles.css, etc.)
-3. Activeer GitHub Pages in repository settings
-4. Open de GitHub Pages URL op je iPhone in Safari
-5. Tik op het "Deel" icoon (vierkant met pijltje omhoog)
-6. Scroll naar beneden en tik op "Zet op beginscherm"
-7. Geef de app een naam en tik op "Voeg toe"
-
-De app staat nu op je iPhone beginscherm! 📱
-
 ## 🎮 Hoe te spelen
 
 1. **Start**: Tik op "Start Quiz"
@@ -78,23 +55,6 @@ Slowakije | Bratislava
 Spanje | Madrid
 Tsjechië | Praag
 Zweden | Stockholm
-
-## 🛠️ Technische Details
-
-- **Progressive Web App (PWA)** - installeerbaar en werkt offline
-- **Pure HTML/CSS/JavaScript** - geen frameworks, snel en lichtgewicht
-- **Service Worker** - caching voor offline gebruik
-- **Responsive Design** - geoptimaliseerd voor mobiel
-- **iOS optimalisatie** - native app-gevoel met Apple meta tags
-
-## 📁 Bestanden
-
-- `index.html` - Hoofdpagina met HTML structuur
-- `app.js` - Quiz logica en interactiviteit
-- `styles.css` - Styling en responsive design
-- `manifest.json` - PWA configuratie
-- `sw.js` - Service Worker voor offline functionaliteit
-- `icon.png` - App icoon (512x512)
 
 ## 🎨 Features
 
