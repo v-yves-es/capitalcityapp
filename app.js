@@ -65,9 +65,15 @@ async function initMap() {
         attributionControl: false
     }).setView([54, 15], 3.5);
     
+    // Voeg een simpele tile layer toe als achtergrond
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    }).addTo(map);
+    
     try {
         const response = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
         europeData = await response.json();
+        console.log('Map data loaded:', europeData.features.length, 'countries');
         
         setTimeout(() => {
             if (map) map.invalidateSize();
@@ -78,31 +84,35 @@ async function initMap() {
 }
 
 function highlightCountry(countryIso) {
-    if (!map || !europeData) return;
+    if (!map || !europeData) {
+        console.log('Map or data not ready');
+        return;
+    }
     
     if (geoJsonLayer) {
         map.removeLayer(geoJsonLayer);
     }
+    
+    const euIsoCodes = euCountries.map(c => c.iso);
     
     geoJsonLayer = L.geoJSON(europeData, {
         style: function(feature) {
             if (feature.properties.ISO_A3 === countryIso) {
                 return {
                     fillColor: '#667eea',
-                    fillOpacity: 0.8,
+                    fillOpacity: 0.7,
                     color: '#764ba2',
-                    weight: 2
+                    weight: 3
                 };
             }
             return {
                 fillColor: '#e8e8e8',
-                fillOpacity: 0.5,
+                fillOpacity: 0.4,
                 color: '#999',
                 weight: 1
             };
         },
         filter: function(feature) {
-            const euIsoCodes = euCountries.map(c => c.iso);
             return euIsoCodes.includes(feature.properties.ISO_A3);
         }
     }).addTo(map);
@@ -110,8 +120,10 @@ function highlightCountry(countryIso) {
     const targetCountry = europeData.features.find(f => f.properties.ISO_A3 === countryIso);
     if (targetCountry) {
         const bounds = L.geoJSON(targetCountry).getBounds();
-        map.fitBounds(bounds, { padding: [20, 20], maxZoom: 5 });
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6, animate: true });
     }
+    
+    console.log('Highlighted country:', countryIso);
 }
 
 function initQuiz(mode) {
