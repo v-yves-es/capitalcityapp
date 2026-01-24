@@ -1,31 +1,31 @@
 const euCountries = [
-    { country: 'België', capital: 'Brussel' },
-    { country: 'Bulgarije', capital: 'Sofia' },
-    { country: 'Cyprus', capital: 'Nicosia' },
-    { country: 'Denemarken', capital: 'Kopenhagen' },
-    { country: 'Duitsland', capital: 'Berlijn' },
-    { country: 'Estland', capital: 'Tallinn' },
-    { country: 'Finland', capital: 'Helsinki' },
-    { country: 'Frankrijk', capital: 'Parijs' },
-    { country: 'Griekenland', capital: 'Athene' },
-    { country: 'Hongarije', capital: 'Boedapest' },
-    { country: 'Ierland', capital: 'Dublin' },
-    { country: 'Italië', capital: 'Rome' },
-    { country: 'Kroatië', capital: 'Zagreb' },
-    { country: 'Letland', capital: 'Riga' },
-    { country: 'Litouwen', capital: 'Vilnius' },
-    { country: 'Luxemburg', capital: 'Luxemburg' },
-    { country: 'Malta', capital: 'Valletta' },
-    { country: 'Nederland', capital: 'Amsterdam' },
-    { country: 'Oostenrijk', capital: 'Wenen' },
-    { country: 'Polen', capital: 'Warschau' },
-    { country: 'Portugal', capital: 'Lissabon' },
-    { country: 'Roemenië', capital: 'Boekarest' },
-    { country: 'Slovenië', capital: 'Ljubljana' },
-    { country: 'Slowakije', capital: 'Bratislava' },
-    { country: 'Spanje', capital: 'Madrid' },
-    { country: 'Tsjechië', capital: 'Praag' },
-    { country: 'Zweden', capital: 'Stockholm' }
+    { country: 'België', capital: 'Brussel', flag: '🇧🇪' },
+    { country: 'Bulgarije', capital: 'Sofia', flag: '🇧🇬' },
+    { country: 'Cyprus', capital: 'Nicosia', flag: '🇨🇾' },
+    { country: 'Denemarken', capital: 'Kopenhagen', flag: '🇩🇰' },
+    { country: 'Duitsland', capital: 'Berlijn', flag: '🇩🇪' },
+    { country: 'Estland', capital: 'Tallinn', flag: '🇪🇪' },
+    { country: 'Finland', capital: 'Helsinki', flag: '🇫🇮' },
+    { country: 'Frankrijk', capital: 'Parijs', flag: '🇫🇷' },
+    { country: 'Griekenland', capital: 'Athene', flag: '🇬🇷' },
+    { country: 'Hongarije', capital: 'Boedapest', flag: '🇭🇺' },
+    { country: 'Ierland', capital: 'Dublin', flag: '🇮🇪' },
+    { country: 'Italië', capital: 'Rome', flag: '🇮🇹' },
+    { country: 'Kroatië', capital: 'Zagreb', flag: '🇭🇷' },
+    { country: 'Letland', capital: 'Riga', flag: '🇱🇻' },
+    { country: 'Litouwen', capital: 'Vilnius', flag: '🇱🇹' },
+    { country: 'Luxemburg', capital: 'Luxemburg', flag: '🇱🇺' },
+    { country: 'Malta', capital: 'Valletta', flag: '🇲🇹' },
+    { country: 'Nederland', capital: 'Amsterdam', flag: '🇳🇱' },
+    { country: 'Oostenrijk', capital: 'Wenen', flag: '🇦🇹' },
+    { country: 'Polen', capital: 'Warschau', flag: '🇵🇱' },
+    { country: 'Portugal', capital: 'Lissabon', flag: '🇵🇹' },
+    { country: 'Roemenië', capital: 'Boekarest', flag: '🇷🇴' },
+    { country: 'Slovenië', capital: 'Ljubljana', flag: '🇸🇮' },
+    { country: 'Slowakije', capital: 'Bratislava', flag: '🇸🇰' },
+    { country: 'Spanje', capital: 'Madrid', flag: '🇪🇸' },
+    { country: 'Tsjechië', capital: 'Praag', flag: '🇨🇿' },
+    { country: 'Zweden', capital: 'Stockholm', flag: '🇸🇪' }
 ];
 
 let quiz = [];
@@ -62,7 +62,9 @@ function initQuiz(mode) {
         return {
             question: showCountry ? item.country : item.capital,
             answer: showCountry ? item.capital : item.country,
-            isCountryQuestion: showCountry
+            isCountryQuestion: showCountry,
+            flag: item.flag,
+            country: item.country
         };
     });
     currentIndex = 0;
@@ -91,8 +93,15 @@ function showQuestion() {
     }
 
     const current = quiz[currentIndex];
-    document.getElementById('questionText').textContent = current.question;
-    document.getElementById('answerText').textContent = current.answer;
+    const questionDisplay = current.isCountryQuestion 
+        ? `${current.flag} ${current.question}` 
+        : current.question;
+    const answerDisplay = current.isCountryQuestion 
+        ? current.answer 
+        : `${current.flag} ${current.answer}`;
+    
+    document.getElementById('questionText').textContent = questionDisplay;
+    document.getElementById('answerText').textContent = answerDisplay;
     document.getElementById('answerText').classList.add('hidden');
     document.getElementById('answerButtons').classList.add('hidden');
     document.getElementById('flashcard').classList.remove('revealed');
@@ -118,9 +127,16 @@ function handleCorrect() {
 function handleWrong() {
     if (!isRevealed) return;
     const current = quiz[currentIndex];
+    const questionDisplay = current.isCountryQuestion 
+        ? `${current.flag} ${current.question}` 
+        : current.question;
+    const answerDisplay = current.isCountryQuestion 
+        ? current.answer 
+        : `${current.flag} ${current.answer}`;
+    
     mistakes.push({
-        question: current.question,
-        answer: current.answer
+        question: questionDisplay,
+        answer: answerDisplay
     });
     nextQuestion();
 }
