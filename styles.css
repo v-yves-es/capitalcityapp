@@ -143,10 +143,16 @@ h2 {
 }
 
 #map {
-    height: 250px;
+    height: 400px;
     width: 100%;
     border-radius: 12px;
     z-index: 1;
+}
+
+@media (max-width: 480px) {
+    #map {
+        height: 350px;
+    }
 }
 
 .flashcard {

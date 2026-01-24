@@ -63,7 +63,7 @@ async function initMap() {
         tap: false,
         touchZoom: false,
         attributionControl: false
-    }).setView([54, 15], 3.5);
+    }).setView([50, 10], 4);
     
     // Voeg een simpele tile layer toe als achtergrond
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
@@ -90,6 +90,11 @@ async function initMap() {
             style: function(feature) {
                 const iso = feature.properties['ISO3166-1-Alpha-3'];
                 const isEU = euIsoCodes.includes(iso);
+                
+                // Debug Frankrijk specifiek
+                if (feature.properties.name === 'France' || iso === 'FRA') {
+                    console.log('FRANCE DEBUG:', feature.properties.name, 'ISO:', iso, 'isEU:', isEU);
+                }
                 
                 if (isEU) {
                     foundCount++;
@@ -161,7 +166,7 @@ function highlightCountry(countryIso) {
     }).addTo(map);
     
     // Houd Europa altijd in beeld - geen zoom per land
-    map.setView([54, 15], 3.5, { animate: false });
+    map.setView([50, 10], 4, { animate: false });
     
     console.log('Highlighted:', highlightedCountryName);
 }
