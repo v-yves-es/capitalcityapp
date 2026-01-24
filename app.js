@@ -62,8 +62,10 @@ async function initMap() {
         keyboard: false,
         tap: false,
         touchZoom: false,
-        attributionControl: false
-    }).setView([50, 10], 4);
+        attributionControl: false,
+        minZoom: 3,
+        maxZoom: 7
+    }).setView([54, 20], 3.2);
     
     // Voeg een simpele tile layer toe als achtergrond
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
@@ -165,8 +167,8 @@ function highlightCountry(countryIso) {
         }
     }).addTo(map);
     
-    // Houd Europa altijd in beeld - geen zoom per land
-    map.setView([50, 10], 4, { animate: false });
+    // Houd Europa altijd in beeld - van Portugal tot Cyprus, van Finland tot Malta
+    map.setView([54, 20], 3.2, { animate: false });
     
     console.log('Highlighted:', highlightedCountryName);
 }
