@@ -48,7 +48,10 @@ function shuffleArray(array) {
 }
 
 async function initMap() {
-    if (map) return;
+    if (map) {
+        setTimeout(() => map.invalidateSize(), 100);
+        return;
+    }
     
     map = L.map('map', {
         zoomControl: false,
@@ -58,12 +61,17 @@ async function initMap() {
         boxZoom: false,
         keyboard: false,
         tap: false,
-        touchZoom: false
+        touchZoom: false,
+        attributionControl: false
     }).setView([54, 15], 3.5);
     
     try {
         const response = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
         europeData = await response.json();
+        
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 100);
     } catch (error) {
         console.error('Error loading map data:', error);
     }
