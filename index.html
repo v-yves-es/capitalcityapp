@@ -17,8 +17,27 @@
         <div id="startScreen" class="screen active">
             <div class="container">
                 <h1>🇪🇺 EU Landen & Hoofdsteden</h1>
-                <p class="subtitle">Leer alle 27 EU-landen en hun hoofdsteden</p>
-                <button id="startBtn" class="btn btn-primary">Start Quiz</button>
+                <p class="subtitle">Kies je quiz modus</p>
+                
+                <div class="mode-buttons">
+                    <button class="btn btn-mode" data-mode="countries">
+                        <span class="mode-icon">🌍</span>
+                        <span class="mode-title">Land → Hoofdstad</span>
+                        <span class="mode-desc">Ik geef het land, jij de hoofdstad</span>
+                    </button>
+                    
+                    <button class="btn btn-mode" data-mode="capitals">
+                        <span class="mode-icon">🏛️</span>
+                        <span class="mode-title">Hoofdstad → Land</span>
+                        <span class="mode-desc">Ik geef de hoofdstad, jij het land</span>
+                    </button>
+                    
+                    <button class="btn btn-mode" data-mode="random">
+                        <span class="mode-icon">🔀</span>
+                        <span class="mode-title">Random Mix</span>
+                        <span class="mode-desc">Door elkaar voor extra uitdaging</span>
+                    </button>
+                </div>
             </div>
         </div>
 

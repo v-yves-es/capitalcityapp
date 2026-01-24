@@ -33,6 +33,7 @@ let currentIndex = 0;
 let score = 0;
 let mistakes = [];
 let isRevealed = false;
+let gameMode = 'random';
 
 function shuffleArray(array) {
     const shuffled = [...array];
@@ -43,10 +44,21 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-function initQuiz() {
+function initQuiz(mode) {
+    gameMode = mode;
     const shuffled = shuffleArray(euCountries);
+    
     quiz = shuffled.map(item => {
-        const showCountry = Math.random() < 0.5;
+        let showCountry;
+        
+        if (mode === 'countries') {
+            showCountry = true;
+        } else if (mode === 'capitals') {
+            showCountry = false;
+        } else {
+            showCountry = Math.random() < 0.5;
+        }
+        
         return {
             question: showCountry ? item.country : item.capital,
             answer: showCountry ? item.capital : item.country,
@@ -143,10 +155,13 @@ function showResults() {
     }
 }
 
-document.getElementById('startBtn').addEventListener('click', () => {
-    initQuiz();
-    showScreen('quizScreen');
-    showQuestion();
+document.querySelectorAll('.btn-mode').forEach(button => {
+    button.addEventListener('click', () => {
+        const mode = button.getAttribute('data-mode');
+        initQuiz(mode);
+        showScreen('quizScreen');
+        showQuestion();
+    });
 });
 
 document.getElementById('flashcard').addEventListener('click', () => {
@@ -159,9 +174,7 @@ document.getElementById('correctBtn').addEventListener('click', handleCorrect);
 document.getElementById('wrongBtn').addEventListener('click', handleWrong);
 
 document.getElementById('restartBtn').addEventListener('click', () => {
-    initQuiz();
-    showScreen('quizScreen');
-    showQuestion();
+    showScreen('startScreen');
 });
 
 if ('serviceWorker' in navigator) {
