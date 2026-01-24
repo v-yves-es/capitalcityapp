@@ -173,6 +173,19 @@ h2 {
     width: 100%;
 }
 
+.map-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.map-container svg {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
 .question-text {
     font-size: 2rem;
     font-weight: 700;
