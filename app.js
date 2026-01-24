@@ -1,31 +1,31 @@
 const euCountries = [
-    { country: 'België', capital: 'Brussel', flag: '🇧🇪', code: 'BE' },
-    { country: 'Bulgarije', capital: 'Sofia', flag: '🇧🇬', code: 'BG' },
-    { country: 'Cyprus', capital: 'Nicosia', flag: '🇨🇾', code: 'CY' },
-    { country: 'Denemarken', capital: 'Kopenhagen', flag: '🇩🇰', code: 'DK' },
-    { country: 'Duitsland', capital: 'Berlijn', flag: '🇩🇪', code: 'DE' },
-    { country: 'Estland', capital: 'Tallinn', flag: '🇪🇪', code: 'EE' },
-    { country: 'Finland', capital: 'Helsinki', flag: '🇫🇮', code: 'FI' },
-    { country: 'Frankrijk', capital: 'Parijs', flag: '🇫🇷', code: 'FR' },
-    { country: 'Griekenland', capital: 'Athene', flag: '🇬🇷', code: 'GR' },
-    { country: 'Hongarije', capital: 'Boedapest', flag: '🇭🇺', code: 'HU' },
-    { country: 'Ierland', capital: 'Dublin', flag: '🇮🇪', code: 'IE' },
-    { country: 'Italië', capital: 'Rome', flag: '🇮🇹', code: 'IT' },
-    { country: 'Kroatië', capital: 'Zagreb', flag: '🇭🇷', code: 'HR' },
-    { country: 'Letland', capital: 'Riga', flag: '🇱🇻', code: 'LV' },
-    { country: 'Litouwen', capital: 'Vilnius', flag: '🇱🇹', code: 'LT' },
-    { country: 'Luxemburg', capital: 'Luxemburg', flag: '🇱🇺', code: 'LU' },
-    { country: 'Malta', capital: 'Valletta', flag: '🇲🇹', code: 'MT' },
-    { country: 'Nederland', capital: 'Amsterdam', flag: '🇳🇱', code: 'NL' },
-    { country: 'Oostenrijk', capital: 'Wenen', flag: '🇦🇹', code: 'AT' },
-    { country: 'Polen', capital: 'Warschau', flag: '🇵🇱', code: 'PL' },
-    { country: 'Portugal', capital: 'Lissabon', flag: '🇵🇹', code: 'PT' },
-    { country: 'Roemenië', capital: 'Boekarest', flag: '🇷🇴', code: 'RO' },
-    { country: 'Slovenië', capital: 'Ljubljana', flag: '🇸🇮', code: 'SI' },
-    { country: 'Slowakije', capital: 'Bratislava', flag: '🇸🇰', code: 'SK' },
-    { country: 'Spanje', capital: 'Madrid', flag: '🇪🇸', code: 'ES' },
-    { country: 'Tsjechië', capital: 'Praag', flag: '🇨🇿', code: 'CZ' },
-    { country: 'Zweden', capital: 'Stockholm', flag: '🇸🇪', code: 'SE' }
+    { country: 'België', capital: 'Brussel', flag: '🇧🇪' },
+    { country: 'Bulgarije', capital: 'Sofia', flag: '🇧🇬' },
+    { country: 'Cyprus', capital: 'Nicosia', flag: '🇨🇾' },
+    { country: 'Denemarken', capital: 'Kopenhagen', flag: '🇩🇰' },
+    { country: 'Duitsland', capital: 'Berlijn', flag: '🇩🇪' },
+    { country: 'Estland', capital: 'Tallinn', flag: '🇪🇪' },
+    { country: 'Finland', capital: 'Helsinki', flag: '🇫🇮' },
+    { country: 'Frankrijk', capital: 'Parijs', flag: '🇫🇷' },
+    { country: 'Griekenland', capital: 'Athene', flag: '🇬🇷' },
+    { country: 'Hongarije', capital: 'Boedapest', flag: '🇭🇺' },
+    { country: 'Ierland', capital: 'Dublin', flag: '🇮🇪' },
+    { country: 'Italië', capital: 'Rome', flag: '🇮🇹' },
+    { country: 'Kroatië', capital: 'Zagreb', flag: '🇭🇷' },
+    { country: 'Letland', capital: 'Riga', flag: '🇱🇻' },
+    { country: 'Litouwen', capital: 'Vilnius', flag: '🇱🇹' },
+    { country: 'Luxemburg', capital: 'Luxemburg', flag: '🇱🇺' },
+    { country: 'Malta', capital: 'Valletta', flag: '🇲🇹' },
+    { country: 'Nederland', capital: 'Amsterdam', flag: '🇳🇱' },
+    { country: 'Oostenrijk', capital: 'Wenen', flag: '🇦🇹' },
+    { country: 'Polen', capital: 'Warschau', flag: '🇵🇱' },
+    { country: 'Portugal', capital: 'Lissabon', flag: '🇵🇹' },
+    { country: 'Roemenië', capital: 'Boekarest', flag: '🇷🇴' },
+    { country: 'Slovenië', capital: 'Ljubljana', flag: '🇸🇮' },
+    { country: 'Slowakije', capital: 'Bratislava', flag: '🇸🇰' },
+    { country: 'Spanje', capital: 'Madrid', flag: '🇪🇸' },
+    { country: 'Tsjechië', capital: 'Praag', flag: '🇨🇿' },
+    { country: 'Zweden', capital: 'Stockholm', flag: '🇸🇪' }
 ];
 
 let quiz = [];
@@ -64,53 +64,13 @@ function initQuiz(mode) {
             answer: showCountry ? item.capital : item.country,
             isCountryQuestion: showCountry,
             flag: item.flag,
-            country: item.country,
-            countryCode: item.code
+            country: item.country
         };
     });
     currentIndex = 0;
     score = 0;
     mistakes = [];
     isRevealed = false;
-}
-
-let europeSVG = null;
-
-async function loadEuropeMap() {
-    if (europeSVG) return europeSVG;
-    
-    try {
-        const response = await fetch('europe-map.svg');
-        const svgText = await response.text();
-        europeSVG = svgText;
-        return svgText;
-    } catch (error) {
-        console.error('Error loading map:', error);
-        return null;
-    }
-}
-
-function highlightCountry(countryCode) {
-    const mapContainer = document.getElementById('mapContainer');
-    
-    if (!mapContainer || !europeSVG) return;
-    
-    mapContainer.innerHTML = europeSVG;
-    
-    const svgElement = mapContainer.querySelector('svg');
-    if (svgElement) {
-        svgElement.style.width = '100%';
-        svgElement.style.height = 'auto';
-        svgElement.style.maxHeight = '200px';
-    }
-    
-    const allCountries = mapContainer.querySelectorAll('.country');
-    allCountries.forEach(c => c.classList.remove('highlighted'));
-    
-    const countryPath = mapContainer.querySelector(`#${countryCode}`);
-    if (countryPath) {
-        countryPath.classList.add('highlighted');
-    }
 }
 
 function showScreen(screenId) {
@@ -139,8 +99,6 @@ function showQuestion() {
     const answerDisplay = current.isCountryQuestion 
         ? current.answer 
         : `${current.flag} ${current.answer}`;
-    
-    highlightCountry(current.countryCode);
     
     document.getElementById('questionText').textContent = questionDisplay;
     document.getElementById('answerText').textContent = answerDisplay;
@@ -214,8 +172,7 @@ function showResults() {
 }
 
 document.querySelectorAll('.btn-mode').forEach(button => {
-    button.addEventListener('click', async () => {
-        await loadEuropeMap();
+    button.addEventListener('click', () => {
         const mode = button.getAttribute('data-mode');
         initQuiz(mode);
         showScreen('quizScreen');

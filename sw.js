@@ -1,11 +1,10 @@
-const CACHE_NAME = 'eu-capitals-v2';
+const CACHE_NAME = 'eu-capitals-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/icon.png',
-  '/europe-map.svg'
+  '/icon.png'
 ];
 
 self.addEventListener('install', event => {
