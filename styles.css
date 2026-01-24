@@ -90,10 +90,10 @@ h2 {
     color: #333;
     width: 100%;
     padding: 1.5rem;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     text-align: left;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
 .btn-mode:active {
@@ -101,20 +101,13 @@ h2 {
 }
 
 .mode-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
 }
 
 .mode-title {
     font-size: 1.2rem;
     font-weight: 700;
     color: #667eea;
-}
-
-.mode-desc {
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: #666;
 }
 
 .progress-bar {
