@@ -18,12 +18,12 @@
         <!-- Start Screen -->
         <div id="startScreen" class="screen active">
             <div class="container">
-                <h1>🇪🇺 EU Landen & Hoofdsteden</h1>
+                <h1>🌍 Geografie Studie App</h1>
                 <p class="subtitle">Kies je studie modus</p>
                 
                 <div class="mode-buttons">
                     <button class="btn btn-mode" data-mode="countries">
-                        <span class="mode-icon">🌍</span>
+                        <span class="mode-icon">🇪🇺</span>
                         <span class="mode-title">Land → Hoofdstad</span>
                     </button>
                     
@@ -35,6 +35,11 @@
                     <button class="btn btn-mode" data-mode="random">
                         <span class="mode-icon">🔀</span>
                         <span class="mode-title">Random Mix</span>
+                    </button>
+                    
+                    <button class="btn btn-mode" data-mode="world">
+                        <span class="mode-icon">🗺️</span>
+                        <span class="mode-title">Continenten & Oceanen</span>
                     </button>
                 </div>
             </div>
@@ -69,6 +74,23 @@
                         <span>Goed</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- World Map Quiz Screen -->
+        <div id="worldQuizScreen" class="screen">
+            <div class="container">
+                <div class="progress-text" id="worldProgressText">Vraag 1 van 11</div>
+                
+                <div class="world-question-box">
+                    <h2 id="worldQuestionText">Klik op: Azië</h2>
+                </div>
+                
+                <div id="worldMapContainer" class="world-map-container">
+                    <div id="worldMap"></div>
+                </div>
+                
+                <button id="submitAnswerBtn" class="btn btn-primary" style="margin-top: 1rem;">Indienen</button>
             </div>
         </div>
 
