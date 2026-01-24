@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
     <title>EU Landen & Hoofdsteden</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -46,6 +47,10 @@
                 </div>
                 <div class="progress-text" id="progressText">Vraag 1 van 27</div>
                 
+                <div id="mapContainer" class="map-container">
+                    <div id="map"></div>
+                </div>
+                
                 <div id="flashcard" class="flashcard">
                     <div class="flashcard-content">
                         <div id="questionText" class="question-text"></div>
@@ -82,6 +87,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
