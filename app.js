@@ -107,7 +107,10 @@ async function initMap() {
                 const iso = feature.properties.ISO_A3 || 
                            feature.properties['ISO3166-1-Alpha-3'] || 
                            feature.properties.ADM0_A3;
-                const isEU = euIsoCodes.includes(iso);
+                
+                // WORKAROUND: Frankrijk heeft '-99' als ISO in deze dataset
+                const isFrance = feature.properties.name === 'France';
+                const isEU = euIsoCodes.includes(iso) || isFrance;
                 
                 if (isEU) {
                     foundCount++;
@@ -125,7 +128,8 @@ async function initMap() {
                 const iso = feature.properties.ISO_A3 || 
                            feature.properties['ISO3166-1-Alpha-3'] || 
                            feature.properties.ADM0_A3;
-                return euIsoCodes.includes(iso);
+                const isFrance = feature.properties.name === 'France';
+                return euIsoCodes.includes(iso) || isFrance;
             }
         }).addTo(map);
         
@@ -159,7 +163,10 @@ function highlightCountry(countryIso) {
             const iso = feature.properties.ISO_A3 || 
                        feature.properties['ISO3166-1-Alpha-3'] || 
                        feature.properties.ADM0_A3;
-            const isTarget = iso === countryIso;
+            
+            // WORKAROUND: Frankrijk heeft '-99' als ISO in deze dataset
+            const isFrance = feature.properties.name === 'France';
+            const isTarget = iso === countryIso || (countryIso === 'FRA' && isFrance);
             
             if (isTarget) {
                 highlightedCountryName = feature.properties.NAME || feature.properties.ADMIN || feature.properties.name;
@@ -183,7 +190,8 @@ function highlightCountry(countryIso) {
             const iso = feature.properties.ISO_A3 || 
                        feature.properties['ISO3166-1-Alpha-3'] || 
                        feature.properties.ADM0_A3;
-            return euIsoCodes.includes(iso);
+            const isFrance = feature.properties.name === 'France';
+            return euIsoCodes.includes(iso) || isFrance;
         }
     }).addTo(map);
     
