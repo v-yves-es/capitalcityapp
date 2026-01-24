@@ -88,14 +88,12 @@ async function initMap() {
         let foundCount = 0;
         geoJsonLayer = L.geoJSON(europeData, {
             style: function(feature) {
-                const iso3 = feature.properties.ISO_A3;
-                const adm0 = feature.properties.ADM0_A3;
-                const iso = iso3 || adm0;
-                const isEU = euIsoCodes.includes(iso3) || euIsoCodes.includes(adm0);
+                const iso = feature.properties['ISO3166-1-Alpha-3'];
+                const isEU = euIsoCodes.includes(iso);
                 
                 if (isEU) {
                     foundCount++;
-                    console.log('Found EU country:', feature.properties.NAME || feature.properties.ADMIN, '- ISO_A3:', iso3, '- ADM0_A3:', adm0);
+                    console.log('Found EU country:', feature.properties.name, 'ISO:', iso);
                 }
                 return {
                     fillColor: isEU ? '#d0d0ff' : '#f5f5f5',
@@ -105,9 +103,7 @@ async function initMap() {
                 };
             },
             filter: function(feature) {
-                const iso3 = feature.properties.ISO_A3;
-                const adm0 = feature.properties.ADM0_A3;
-                return euIsoCodes.includes(iso3) || euIsoCodes.includes(adm0);
+                return euIsoCodes.includes(feature.properties['ISO3166-1-Alpha-3']);
             }
         }).addTo(map);
         
@@ -138,13 +134,12 @@ function highlightCountry(countryIso) {
     
     geoJsonLayer = L.geoJSON(europeData, {
         style: function(feature) {
-            const iso3 = feature.properties.ISO_A3;
-            const adm0 = feature.properties.ADM0_A3;
-            const isTarget = iso3 === countryIso || adm0 === countryIso;
+            const iso = feature.properties['ISO3166-1-Alpha-3'];
+            const isTarget = iso === countryIso;
             
             if (isTarget) {
-                highlightedCountryName = feature.properties.NAME || feature.properties.ADMIN;
-                console.log('Target country found:', highlightedCountryName, '- ISO_A3:', iso3, '- ADM0_A3:', adm0);
+                highlightedCountryName = feature.properties.name;
+                console.log('Target country found:', highlightedCountryName, 'ISO:', iso);
                 return {
                     fillColor: '#667eea',
                     fillOpacity: 0.9,
@@ -161,22 +156,14 @@ function highlightCountry(countryIso) {
             };
         },
         filter: function(feature) {
-            const iso3 = feature.properties.ISO_A3;
-            const adm0 = feature.properties.ADM0_A3;
-            return euIsoCodes.includes(iso3) || euIsoCodes.includes(adm0);
+            return euIsoCodes.includes(feature.properties['ISO3166-1-Alpha-3']);
         }
     }).addTo(map);
     
-    const targetCountry = europeData.features.find(f => 
-        f.properties.ISO_A3 === countryIso || f.properties.ADM0_A3 === countryIso
-    );
-    if (targetCountry) {
-        const bounds = L.geoJSON(targetCountry).getBounds();
-        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6, animate: true });
-        console.log('Zoomed to:', highlightedCountryName);
-    } else {
-        console.log('Country not found in GeoJSON:', countryIso);
-    }
+    // Houd Europa altijd in beeld - geen zoom per land
+    map.setView([54, 15], 3.5, { animate: false });
+    
+    console.log('Highlighted:', highlightedCountryName);
 }
 
 function initQuiz(mode) {
