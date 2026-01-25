@@ -48,17 +48,17 @@ let selectedRegion = null;
 let worldGeoJsonLayer = null;
 
 const continentsAndOceans = [
-    { name: 'Azië', type: 'continent', keywords: ['asia', 'asien'] },
-    { name: 'Afrika', type: 'continent', keywords: ['africa', 'afrique'] },
-    { name: 'Noord-Amerika', type: 'continent', keywords: ['north america', 'amérique du nord'] },
-    { name: 'Zuid-Amerika', type: 'continent', keywords: ['south america', 'amérique du sud'] },
-    { name: 'Antarctica', type: 'continent', keywords: ['antarctica', 'antarctique'] },
-    { name: 'Europa', type: 'continent', keywords: ['europe'] },
-    { name: 'Oceanië', type: 'continent', keywords: ['oceania', 'océanie', 'australia'] },
-    { name: 'Grote Oceaan', type: 'ocean', keywords: ['pacific', 'pacifique'] },
-    { name: 'Atlantische Oceaan', type: 'ocean', keywords: ['atlantic', 'atlantique'] },
-    { name: 'Indische Oceaan', type: 'ocean', keywords: ['indian', 'indien'] },
-    { name: 'Noordelijke IJszee', type: 'ocean', keywords: ['arctic', 'arctique'] }
+    { name: 'Azië', type: 'continent' },
+    { name: 'Afrika', type: 'continent' },
+    { name: 'Noord-Amerika', type: 'continent' },
+    { name: 'Zuid-Amerika', type: 'continent' },
+    { name: 'Antarctica', type: 'continent' },
+    { name: 'Europa', type: 'continent' },
+    { name: 'Oceanië', type: 'continent' },
+    { name: 'Grote Oceaan', type: 'ocean' },
+    { name: 'Atlantische Oceaan', type: 'ocean' },
+    { name: 'Indische Oceaan', type: 'ocean' },
+    { name: 'Noordelijke IJszee', type: 'ocean' }
 ];
 
 function shuffleArray(array) {
@@ -412,78 +412,87 @@ async function initWorldMap() {
         maxZoom: 19
     }).addTo(worldMap);
     
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
-        worldData = await response.json();
-        console.log('World map data loaded:', worldData.features.length, 'countries');
-        
-        // Force invalidate size after load
-        setTimeout(() => {
-            if (worldMap) {
-                worldMap.invalidateSize();
-                drawWorldRegions();
-            }
-        }, 200);
-    } catch (error) {
-        console.error('Error loading world map data:', error);
-    }
-}
-
-function drawWorldRegions() {
-    if (!worldMap || !worldData) {
-        console.log('Cannot draw regions - map or data missing');
-        return;
-    }
-    
-    if (worldGeoJsonLayer) {
-        worldMap.removeLayer(worldGeoJsonLayer);
-    }
-    
-    console.log('Drawing world regions...');
-    
-    worldGeoJsonLayer = L.geoJSON(worldData, {
-        style: function(feature) {
-            return {
-                fillColor: '#e8e8e8',
-                fillOpacity: 0.7,
-                color: '#666',
-                weight: 1.5
-            };
-        },
-        onEachFeature: function(feature, layer) {
-            layer.on('click', function(e) {
-                handleWorldMapClick(feature, layer);
-                L.DomEvent.stopPropagation(e);
-            });
+    // Wacht even voor de map om te renderen
+    setTimeout(() => {
+        if (worldMap) {
+            worldMap.invalidateSize();
+            drawContinentsAndOceans();
         }
-    }).addTo(worldMap);
-    
-    console.log('World regions drawn');
+    }, 200);
 }
 
-function handleWorldMapClick(feature, layer) {
-    if (!worldQuiz[worldCurrentIndex]) return;
+function drawContinentsAndOceans() {
+    if (!worldMap) return;
     
-    const currentQuestion = worldQuiz[worldCurrentIndex];
+    // Definieer grote rechthoeken/polygonen voor continenten en oceanen
+    const regions = [
+        // Continenten
+        { name: 'Azië', type: 'continent', bounds: [[10, 26], [75, 145]], color: '#fbbf24' },
+        { name: 'Afrika', type: 'continent', bounds: [[-35, -17], [37, 51]], color: '#f87171' },
+        { name: 'Noord-Amerika', type: 'continent', bounds: [[7, -170], [72, -50]], color: '#34d399' },
+        { name: 'Zuid-Amerika', type: 'continent', bounds: [[-56, -82], [12, -34]], color: '#60a5fa' },
+        { name: 'Antarctica', type: 'continent', bounds: [[-90, -180], [-60, 180]], color: '#e0e0e0' },
+        { name: 'Europa', type: 'continent', bounds: [[36, -10], [71, 40]], color: '#c084fc' },
+        { name: 'Oceanië', type: 'continent', bounds: [[-47, 110], [-10, 180]], color: '#fb923c' },
+        
+        // Oceanen
+        { name: 'Grote Oceaan', type: 'ocean', bounds: [[-60, 120], [60, -80]], color: '#3b82f6' },
+        { name: 'Atlantische Oceaan', type: 'ocean', bounds: [[-60, -70], [60, 20]], color: '#0ea5e9' },
+        { name: 'Indische Oceaan', type: 'ocean', bounds: [[-60, 20], [25, 120]], color: '#06b6d4' },
+        { name: 'Noordelijke IJszee', type: 'ocean', bounds: [[66, -180], [90, 180]], color: '#67e8f9' }
+    ];
+    
+    regions.forEach(region => {
+        const rectangle = L.rectangle(region.bounds, {
+            color: '#667eea',
+            weight: 2,
+            fillColor: region.color,
+            fillOpacity: 0.3,
+            className: 'region-polygon'
+        }).addTo(worldMap);
+        
+        rectangle.regionData = region;
+        
+        rectangle.on('click', function(e) {
+            handleRegionClick(rectangle, region);
+            L.DomEvent.stopPropagation(e);
+        });
+        
+        // Voeg label toe
+        const center = rectangle.getBounds().getCenter();
+        L.marker(center, {
+            icon: L.divIcon({
+                className: 'region-label',
+                html: `<div style="background: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${region.name}</div>`,
+                iconSize: [100, 30]
+            })
+        }).addTo(worldMap);
+    });
+    
+    console.log('Continents and oceans drawn');
+}
+
+function handleRegionClick(rectangle, region) {
+    if (!worldQuiz[worldCurrentIndex]) return;
     
     // Verwijder vorige selectie
     if (selectedRegion) {
         selectedRegion.setStyle({
-            fillColor: '#e8e8e8',
-            fillOpacity: 0.6,
-            weight: 1
+            fillOpacity: 0.3,
+            weight: 2
         });
     }
     
     // Markeer nieuwe selectie
-    layer.setStyle({
-        fillColor: '#667eea',
-        fillOpacity: 0.8,
-        weight: 3,
+    rectangle.setStyle({
+        fillOpacity: 0.7,
+        weight: 4,
         color: '#764ba2'
     });
     
-    selectedRegion = layer;
+    selectedRegion = rectangle;
+    
+    console.log('Selected:', region.name);
 }
 
 function initWorldQuiz() {
@@ -503,16 +512,6 @@ function showWorldQuestion() {
     const current = worldQuiz[worldCurrentIndex];
     document.getElementById('worldQuestionText').textContent = `Klik op: ${current.name}`;
     document.getElementById('worldProgressText').textContent = `Vraag ${worldCurrentIndex + 1} van ${worldQuiz.length}`;
-    
-    // Reset selectie
-    if (selectedRegion) {
-        selectedRegion.setStyle({
-            fillColor: '#e8e8e8',
-            fillOpacity: 0.6,
-            weight: 1
-        });
-        selectedRegion = null;
-    }
 }
 
 function checkWorldAnswer() {
@@ -522,39 +521,46 @@ function checkWorldAnswer() {
     }
     
     const current = worldQuiz[worldCurrentIndex];
-    const selectedFeature = selectedRegion.feature;
+    const selectedRegionData = selectedRegion.regionData;
     
-    // Check of het geselecteerde land/gebied matcht met de vraag
-    let isCorrect = false;
+    console.log('Checking:', selectedRegionData.name, 'vs', current.name);
     
-    if (current.type === 'continent') {
-        const continent = selectedFeature.properties['CONTINENT'] || 
-                         selectedFeature.properties.continent ||
-                         '';
-        isCorrect = current.keywords.some(kw => continent.toLowerCase().includes(kw));
-    } else {
-        // Voor oceanen kunnen we niet goed checken met deze data
-        // Voor nu accepteren we elk antwoord als oefening
-        isCorrect = true;
-    }
+    const isCorrect = selectedRegionData.name === current.name;
     
     if (isCorrect) {
         worldScore++;
         selectedRegion.setStyle({
             fillColor: '#10b981',
-            fillOpacity: 0.8
+            fillOpacity: 0.8,
+            color: '#059669',
+            weight: 4
         });
     } else {
         selectedRegion.setStyle({
             fillColor: '#ef4444',
-            fillOpacity: 0.8
+            fillOpacity: 0.8,
+            color: '#dc2626',
+            weight: 4
         });
     }
     
     setTimeout(() => {
         worldCurrentIndex++;
+        
+        // Reset alle regio's naar originele kleur
+        if (selectedRegion) {
+            const origColor = selectedRegion.regionData.color;
+            selectedRegion.setStyle({
+                fillColor: origColor,
+                fillOpacity: 0.3,
+                color: '#667eea',
+                weight: 2
+            });
+        }
+        selectedRegion = null;
+        
         showWorldQuestion();
-    }, 1000);
+    }, 1500);
 }
 
 function showWorldResults() {
