@@ -45,8 +45,6 @@ button { font: inherit; color: inherit; }
 
 /* Opstartscherm en startscherm */
 .splash { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #fbfaff; cursor: pointer; position: relative; }
-.splash .mark { width: 76px; height: 76px; border-radius: 22px; background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-.splash .mark svg { width: 38px; height: 38px; }
 .hero { position: absolute; inset: 0; z-index: 0; background: #2f2580; }
 .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 70% at 30% 20%, #7a6ce0, var(--accent) 45%, #2f2580); opacity: .82; }
