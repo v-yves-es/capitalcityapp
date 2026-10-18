@@ -170,22 +170,16 @@ class App {
     }
 
     startHTML() {
-        const p = this.photo;
-        return `<div class="screen" style="padding:0;position:relative">
-            <div class="hero"><img src="${photoURL(p)}" alt="${p.m}, ${p.c}"></div>
-            <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;gap:12px;padding:calc(28px + var(--safe-top)) 20px calc(24px + var(--safe-bottom));color:#fbfaff">
-                <div style="display:flex;flex-direction:column;gap:6px">
-                    <span style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;opacity:.85">27 landen · 27 hoofdsteden</span>
-                    <h1 style="font-size:38px">EU Hoofdsteden</h1>
-                </div>
-                <span style="margin-top:auto;font-size:11px;opacity:.75">${p.m} · ${p.c}</span>
-                <span style="font-size:13px;opacity:.9;margin-top:6px">Kies hoe je wilt oefenen</span>
-                <div style="display:flex;flex-direction:column;gap:8px;color:var(--text)">${MODES.map(m => `
-                    <button class="mode" data-act="pick" data-v="${m.k}">
-                        <span class="ic">${IC[m.ic]}</span><span class="t">${m.t.join(IC.arrow)}</span><span>${IC.arrow}</span>
-                    </button>`).join('')}
-                </div>
-                <span style="font-size:9px;opacity:.55;text-align:center">Foto: Wikimedia Commons</span>
+        return `<div class="screen fadein" style="position:relative">
+            <div style="position:absolute;top:calc(28px + var(--safe-top));left:20px;right:20px;display:flex;flex-direction:column;gap:6px">
+                <span class="kicker">27 landen · 27 hoofdsteden</span>
+                <h1 style="font-size:38px">EU Hoofdsteden</h1>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px">
+                <span class="muted" style="font-size:13px">Kies hoe je wilt oefenen</span>${MODES.map(m => `
+                <button class="mode" data-act="pick" data-v="${m.k}">
+                    <span class="ic">${IC[m.ic]}</span><span class="t">${m.t.join(IC.arrow)}</span><span>${IC.arrow}</span>
+                </button>`).join('')}
             </div>
         </div>`;
     }
