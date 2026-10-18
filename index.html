@@ -2,110 +2,24 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="EU Capitals">
+    <meta name="apple-mobile-web-app-title" content="EU Hoofdsteden">
+    <meta name="theme-color" content="#5a4cc8">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-    <title>EU Landen & Hoofdsteden</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>EU Hoofdsteden</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Start Screen -->
-        <div id="startScreen" class="screen active">
-            <div class="container">
-                <h1>🇪🇺 EU Landen & Hoofdsteden</h1>
-                <p class="subtitle">Kies je studie modus</p>
-                
-                <div class="mode-buttons">
-                    <button class="btn btn-mode" data-mode="countries">
-                        <span class="mode-icon">🇪🇺</span>
-                        <span class="mode-title">Land → Hoofdstad</span>
-                    </button>
-                    
-                    <button class="btn btn-mode" data-mode="capitals">
-                        <span class="mode-icon">🏛️</span>
-                        <span class="mode-title">Hoofdstad → Land</span>
-                    </button>
-                    
-                    <button class="btn btn-mode" data-mode="random">
-                        <span class="mode-icon">🔀</span>
-                        <span class="mode-title">Random Mix</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div id="app" class="phone"></div>
 
-        <!-- Quiz Screen -->
-        <div id="quizScreen" class="screen">
-            <div class="container">
-                <div class="progress-bar">
-                    <div id="progressFill" class="progress-fill"></div>
-                </div>
-                <div class="progress-text" id="progressText">Vraag 1 van 27</div>
-                
-                <div id="mapContainer" class="map-container">
-                    <div id="map"></div>
-                </div>
-                
-                <div id="flashcard" class="flashcard">
-                    <div class="flashcard-content">
-                        <div id="questionText" class="question-text"></div>
-                        <div id="answerText" class="answer-text hidden"></div>
-                    </div>
-                </div>
-
-                <div id="answerButtons" class="answer-buttons hidden">
-                    <button id="wrongBtn" class="btn btn-wrong">
-                        <span class="icon">✗</span>
-                        <span>Fout</span>
-                    </button>
-                    <button id="correctBtn" class="btn btn-correct">
-                        <span class="icon">✓</span>
-                        <span>Goed</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- World Map Quiz Screen -->
-        <div id="worldQuizScreen" class="screen">
-            <div class="container">
-                <div class="progress-text" id="worldProgressText">Vraag 1 van 11</div>
-                
-                <div class="world-question-box">
-                    <h2 id="worldQuestionText">Klik op: Azië</h2>
-                </div>
-                
-                <div id="worldMapContainer" class="world-map-container">
-                    <div id="worldMap"></div>
-                </div>
-                
-                <button id="submitAnswerBtn" class="btn btn-primary" style="margin-top: 1rem;">Indienen</button>
-            </div>
-        </div>
-
-        <!-- Results Screen -->
-        <div id="resultsScreen" class="screen">
-            <div class="container">
-                <h1>🎉 Klaar!</h1>
-                <div id="scoreDisplay" class="score-display"></div>
-                
-                <div id="mistakesSection" class="mistakes-section hidden">
-                    <h2>📋 Jouw Fouten</h2>
-                    <div id="mistakesTable"></div>
-                </div>
-
-                <button id="restartBtn" class="btn btn-primary">Opnieuw Studeren</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
     <script src="app.js"></script>
 </body>
 </html>
