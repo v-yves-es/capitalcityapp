@@ -578,5 +578,13 @@ function showWorldResults() {
 document.getElementById('submitAnswerBtn').addEventListener('click', checkWorldAnswer);
 
 if ('serviceWorker' in navigator) {
+    // Herlaad één keer zodra een nieuwe service worker de controle overneemt
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController || reloaded) return;
+        reloaded = true;
+        window.location.reload();
+    });
     navigator.serviceWorker.register('sw.js');
 }
