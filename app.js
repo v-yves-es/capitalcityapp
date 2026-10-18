@@ -148,7 +148,7 @@ class App {
         if (this.view !== 'quiz') return;
         const q = this.order[this.i];
         drawMap(this.el.querySelector('[data-map]'), q.dir === 'land' ? { hl: q.c } : { cap: q.c.cap });
-        if (this.rev && q.dir === 'stad') drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c });
+        if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap });
     }
 
     render() {
@@ -215,8 +215,8 @@ class App {
                     </div>
                 </div>
                 <div class="face back">
-                    ${land ? '' : '<div data-map-back style="flex:1;min-height:0;opacity:.95"></div>'}
-                    <div style="padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;${land ? 'flex:1' : ''}">
+                    <div data-map-back style="flex:1;min-height:0;opacity:.95"></div>
+                    <div style="padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px">
                         <span class="kicker">${land ? 'Hoofdstad van ' + c.name : c.capital + ' ligt in'}</span>
                         <span style="font-size:${ans.length > 10 ? 36 : 44}px;line-height:1.05;font-weight:500;letter-spacing:-.02em;color:var(--accent-ink)">${ans}</span>
                         <span class="muted" style="font-size:13px;margin-top:8px">Had je het goed?</span>
