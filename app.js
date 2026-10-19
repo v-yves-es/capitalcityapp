@@ -85,6 +85,11 @@ function drawMap(el, o) {
     if (o.zoom) {
         const z = zoomBox(o.zoom, A.byC.get(o.zoom));
         proj.rotate([-z.center[0], -z.center[1]]).fitExtent([[10, 10], [w - 10, h - 10]], z.box);
+    } else if (o.route) {
+        // Ingezoomd op de route, met wat marge zodat de buurlanden zichtbaar zijn
+        const xs = o.route.map(c => c.cap[0]), ys = o.route.map(c => c.cap[1]);
+        const box = [[Math.min(...xs) - 4, Math.min(...ys) - 3], [Math.max(...xs) + 4, Math.max(...ys) + 3]];
+        proj.rotate([-(box[0][0] + box[1][0]) / 2, -(box[0][1] + box[1][1]) / 2]).fitExtent([[16, 16], [w - 16, h - 16]], { type: 'MultiPoint', coordinates: box });
     } else {
         proj.rotate([-11, -52]).fitExtent([[10, 10], [w - 10, h - 10]], BOX);
     }
@@ -107,11 +112,77 @@ function drawMap(el, o) {
         const p = proj(o.hl.cap);
         s += `<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="8"/><circle class="ring" cx="${p[0]}" cy="${p[1]}" r="9"/><circle class="dot" cx="${p[0]}" cy="${p[1]}" r="3"/>`;
     }
+    // Startscherm: een vliegtuigje dat langs een paar hoofdsteden reist
+    if (o.route) {
+        const pts = o.route.map(c => proj(c.cap));
+        let d = `M${pts[0]}`;
+        for (let i = 1; i < pts.length; i++) {
+            const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+            d += `Q${(x0 + x1) / 2 + (y1 - y0) * .3},${(y0 + y1) / 2 - (x1 - x0) * .3} ${x1},${y1}`;
+        }
+        s += `<path id="route" class="route" d="${d}"/>`;
+        s += pts.map(([x, y]) => `<circle class="stop" cx="${x}" cy="${y}" r="4.5"/>`).join('');
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        s += still
+            ? `<path class="plane" d="M9,0 L-7,-7 L-3,0 L-7,7 Z" transform="translate(${pts[0]})"/>`
+            : '<path class="plane" d="M9,0 L-7,-7 L-3,0 L-7,7 Z"><animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#route"/></animateMotion></path>';
+    }
     if (o.cap) {
         const p = proj(o.cap);
         s += `<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="8"/><circle class="cap" cx="${p[0]}" cy="${p[1]}" r="6"/>`;
     }
     el.innerHTML = s + '</svg>';
+}
+
+// Beloning bij een foutloze ronde: een paar vuurpijlen die boven het scorescherm openspatten
+function fireworks(host) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = document.createElement('canvas'), dpr = window.devicePixelRatio || 1;
+    const w = host.clientWidth, h = host.clientHeight;
+    cv.className = 'fireworks';
+    cv.width = w * dpr; cv.height = h * dpr;
+    host.appendChild(cv);
+    const g = cv.getContext('2d');
+    g.scale(dpr, dpr);
+    const COLS = ['#5a4cc8', '#8b7ff0', '#ffc93c', '#2fbf8a', '#ff7a59', '#ffffff'];
+    const rockets = [], sparks = [];
+    for (let k = 0; k < 10; k++) {
+        rockets.push({ t: k * 300 + Math.random() * 150, x: w * (.15 + Math.random() * .7), y: h, ty: h * (.1 + Math.random() * .4), c: COLS[k % (COLS.length - 1)], up: false, done: false });
+    }
+    const t0 = performance.now();
+    let last = t0;
+    (function frame(now) {
+        if (!cv.isConnected) return;
+        const dt = Math.min(now - last, 40) / 16.7, el = now - t0;
+        last = now;
+        g.clearRect(0, 0, w, h);
+        for (const r of rockets) {
+            if (r.done || el < r.t) continue;
+            r.y -= 11 * dt;
+            g.strokeStyle = r.c; g.lineWidth = 3; g.lineCap = 'round';
+            g.beginPath(); g.moveTo(r.x, r.y + 18); g.lineTo(r.x, r.y); g.stroke();
+            if (r.y <= r.ty) {
+                r.done = true;
+                const n = 80 + Math.random() * 30 | 0;
+                for (let i = 0; i < n; i++) {
+                    const a = i / n * Math.PI * 2, v = 2.5 + Math.random() * 4.5;
+                    sparks.push({ x: r.x, y: r.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, c: Math.random() < .25 ? '#ffffff' : r.c });
+                }
+            }
+        }
+        for (const p of sparks) {
+            p.vx *= .97; p.vy = p.vy * .97 + .06 * dt;
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            p.life -= .009 * dt;
+            if (p.life <= 0) continue;
+            g.globalAlpha = p.life;
+            g.fillStyle = p.c;
+            g.beginPath(); g.arc(p.x, p.y, 3.6 * p.life + 1, 0, 7); g.fill();
+        }
+        g.globalAlpha = 1;
+        if (rockets.some(r => !r.done) || sparks.some(p => p.life > 0)) requestAnimationFrame(frame);
+        else cv.remove();
+    })(t0);
 }
 
 const modeLabel = k => MODES.find(m => m.k === k).t.join(' → ');
@@ -151,7 +222,7 @@ class App {
     }
 
     act(a, v) {
-        if (a === 'tostart' || a === 'home') { this.view = 'start'; this.heroC = C[Math.random() * C.length | 0]; return this.render(); }
+        if (a === 'tostart' || a === 'home') { this.view = 'start'; this.route = shuffle(C.filter(c => c.cap[0] < 30)).slice(0, 4).sort((a, b) => a.cap[0] - b.cap[0]); return this.render(); }
         if (a === 'pick') { this.mode = v; this.start(); return this.render(); }
         if (a === 'restart') { this.start(); return this.render(); }
         if (a === 'filter') { this.filter = v; return this.render(); }
@@ -170,11 +241,12 @@ class App {
             this.rev = false;
             if (this.i >= this.n) this.view = 'end';
             this.render();
+            if (this.view === 'end' && this.goed === this.n) fireworks(this.el);
         }
     }
 
     drawMaps() {
-        if (this.view === 'start') return drawMap(this.el.querySelector('[data-map-hero]'), { hl: this.heroC });
+        if (this.view === 'start') return drawMap(this.el.querySelector('[data-map-hero]'), { route: this.route });
         if (this.view !== 'quiz') return;
         const q = this.order[this.i];
         // Staat er een land op de kaart: heel Europa. Staat er een hoofdstad: ingezoomd op dat land.
@@ -209,8 +281,7 @@ class App {
     startHTML() {
         return `<div class="screen fadein home">
             <div class="deck" aria-hidden="true">
-                <div class="deck-card c1"></div><div class="deck-card c2"></div>
-                <div class="deck-card top"><div data-map-hero class="deck-map"></div></div>
+                <div class="deck-card"><div data-map-hero class="deck-map"></div></div>
             </div>
             <div class="home-title">
                 <h1 class="brand">${APP_NAME}</h1>
