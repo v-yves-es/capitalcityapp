@@ -43,7 +43,7 @@ Italië | Rome
 Kroatië | Zagreb
 Letland | Riga
 Litouwen | Vilnius
-Luxemburg | Luxemburg
+G.H. Luxemburg | Luxemburg
 Malta | Valletta
 Nederland | Amsterdam
 Oostenrijk | Wenen

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eu-capitals-v6';
+const CACHE_NAME = 'eu-capitals-v7';
 const urlsToCache = [
   '/capitalcityapp/',
   '/capitalcityapp/index.html',

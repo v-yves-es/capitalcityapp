@@ -2,6 +2,7 @@
     --bg: #ecebe6; --screen: #f7f6f2; --surface: #ffffff; --text: #1d1e27; --muted: #6c6e7a; --line: #e2e1dc;
     --accent: #5a4cc8; --accent-ink: #3d3196; --accent-tint: #eeecfb; --accent-soft: #c9c3f2;
     --fout: #8a8c97; --ok: #23925a; --ok-tint: #e6f4ec; --nok: #d0413a; --nok-tint: #fbe9e7;
+    --sun: #ffc93c; --sun-ink: #8a5a00; --sun-tint: #fff4d6; --mint: #2fbf8a; --mint-tint: #dff6ec; --press: #d9d7cf;
     --sea: #eef1f5; --land: #e3e4e8; --eu: #d3d6e0; --grat: #e3e7ee;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -10,7 +11,8 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
-h1, h2 { margin: 0; font-weight: 500; letter-spacing: -.015em; line-height: 1.12; }
+h1, h2 { margin: 0; font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: 1.08; }
+.brand { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-weight: 800; letter-spacing: -.035em; line-height: .95; }
 button { font: inherit; color: inherit; }
 :focus { outline: none; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -26,7 +28,7 @@ button { font: inherit; color: inherit; }
 .muted { color: var(--muted); }
 .kicker { font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .topbar { display: flex; align-items: center; justify-content: space-between; height: 36px; }
-.title { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.title { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
 .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .icon-btn:hover { background: #f0efea; }
 .icon-btn svg { width: 16px; height: 16px; }
@@ -48,15 +50,38 @@ button { font: inherit; color: inherit; }
 .hero { position: absolute; inset: 0; z-index: 0; background: #2f2580; }
 .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 70% at 30% 20%, #7a6ce0, var(--accent) 45%, #2f2580); opacity: .82; }
-.mode { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(30, 30, 60, .06); cursor: pointer; text-align: left; width: 100%; height: 64px; transition: border-color .15s, background .15s; }
-.mode:hover { border-color: var(--accent-soft); background: #fff; }
-.mode:active { transform: scale(.98); }
-.mode > span:last-child { margin-left: auto; color: var(--accent); display: flex; }
-.mode > span:last-child svg { width: 18px; height: 18px; }
-.mode .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-tint); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: none; }
-.mode .ic svg { width: 20px; height: 20px; }
-.mode .t { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-.mode .t svg { width: 13px; height: 13px; color: var(--muted); }
+
+/* Startscherm: een stapeltje flitskaarten met de kaart van Europa */
+.home { gap: 0; justify-content: space-between; padding-top: calc(28px + var(--safe-top)); }
+.deck { position: relative; height: clamp(120px, 24dvh, 190px); margin: 4px 18px 0; }
+.deck-card { position: absolute; inset: 0; border-radius: 22px; }
+.deck-card.c1 { background: var(--sun); transform: rotate(-7deg) translate(-6px, 6px); }
+.deck-card.c2 { background: var(--accent); transform: rotate(4deg) translate(8px, 2px); }
+.deck-card.top { background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 14px 30px rgba(30, 30, 60, .12); overflow: hidden; transform: rotate(-1.5deg); animation: deal .7s cubic-bezier(.3, 1.4, .5, 1) both; }
+.deck-map { width: 100%; height: 100%; }
+@keyframes deal { from { transform: rotate(-14deg) translateY(30px) scale(.9); opacity: 0; } }
+.home-title { display: flex; flex-direction: column; gap: 8px; margin-top: 26px; }
+.home-title h1 { font-size: clamp(40px, 12vw, 50px); }
+.home-title .muted { font-size: 15px; }
+.modes { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+
+/* Grote, tactiele keuzeknoppen die indrukken als je tikt */
+.mode { display: flex; align-items: center; gap: 16px; padding: 14px 18px 14px 14px; min-height: 84px; width: 100%; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); cursor: pointer; text-align: left; transition: transform .08s, box-shadow .08s, border-color .15s; }
+.mode:hover { border-color: var(--accent-soft); }
+.mode:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--press); }
+.mode .ic { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex: none; }
+.mode .ic svg { width: 28px; height: 28px; }
+.m-land .ic { background: var(--accent-tint); color: var(--accent); }
+.m-stad .ic { background: var(--sun-tint); color: var(--sun-ink); }
+.m-mix .ic { background: var(--mint-tint); color: #17885f; }
+.mode .mt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mode .t { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -.01em; line-height: 1.15; display: flex; align-items: center; gap: 6px; }
+.mode .t svg { width: 15px; height: 15px; color: var(--muted); }
+.mode .sub { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.mode .go { margin-left: auto; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+.mode .go svg { width: 18px; height: 18px; }
+@media (max-height: 640px) { .deck { display: none; } .home-title { margin-top: 8px; } }
+@media (prefers-reduced-motion: reduce) { .deck-card.top { animation: none; } }
 
 /* Voortgang */
 .dots { display: grid; grid-template-columns: repeat(27, 1fr); gap: 3px; }
@@ -108,4 +133,5 @@ svg.map { display: block; }
 .map .pulse { fill: none; stroke: var(--accent); stroke-width: 1.5; animation: pulse 1.6s ease-out infinite; }
 .map .dot { fill: var(--accent); }
 .map .cap { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
+.map.zoom .land, .map.zoom .eu { stroke-width: 1; }
 .map-error { display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; background: var(--sea); }

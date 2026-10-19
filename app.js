@@ -16,7 +16,7 @@ const C = [
     ['Finland', 'Helsinki', '246', 'Finland', [24.94, 60.17]], ['Frankrijk', 'Parijs', '250', 'France', [2.35, 48.86]], ['Griekenland', 'Athene', '300', 'Greece', [23.73, 37.98]],
     ['Hongarije', 'Boedapest', '348', 'Hungary', [19.04, 47.5]], ['Ierland', 'Dublin', '372', 'Ireland', [-6.26, 53.35]], ['Italië', 'Rome', '380', 'Italy', [12.5, 41.9]],
     ['Kroatië', 'Zagreb', '191', 'Croatia', [15.98, 45.81]], ['Letland', 'Riga', '428', 'Latvia', [24.11, 56.95]], ['Litouwen', 'Vilnius', '440', 'Lithuania', [25.28, 54.69]],
-    ['Luxemburg', 'Luxemburg', '442', 'Luxembourg', [6.13, 49.61], true], ['Malta', 'Valletta', '470', 'Malta', [14.51, 35.9], true],
+    ['G.H. Luxemburg', 'Luxemburg', '442', 'Luxembourg', [6.13, 49.61], true], ['Malta', 'Valletta', '470', 'Malta', [14.51, 35.9], true],
     ['Nederland', 'Amsterdam', '528', 'Netherlands', [4.9, 52.37]], ['Oostenrijk', 'Wenen', '040', 'Austria', [16.37, 48.21]], ['Polen', 'Warschau', '616', 'Poland', [21.01, 52.23]],
     ['Portugal', 'Lissabon', '620', 'Portugal', [-9.14, 38.72]], ['Roemenië', 'Boekarest', '642', 'Romania', [26.1, 44.43]], ['Slovenië', 'Ljubljana', '705', 'Slovenia', [14.51, 46.06]],
     ['Slowakije', 'Bratislava', '703', 'Slovakia', [17.11, 48.15]], ['Spanje', 'Madrid', '724', 'Spain', [-3.7, 40.42]], ['Tsjechië', 'Praag', '203', 'Czechia', [14.42, 50.08]],
@@ -24,9 +24,9 @@ const C = [
 ].map(([name, capital, id, en, cap, small]) => ({ name, capital, id, en, cap, small }));
 
 const MODES = [
-    { k: 'land', t: ['Land', 'Hoofdstad'], ic: 'map' },
-    { k: 'stad', t: ['Hoofdstad', 'Land'], ic: 'building' },
-    { k: 'mix', t: ['Mix'], ic: 'shuffle' }
+    { k: 'land', t: ['Land', 'Hoofdstad'], ic: 'map', sub: 'Zie het land, raad de hoofdstad' },
+    { k: 'stad', t: ['Hoofdstad', 'Land'], ic: 'building', sub: 'Zie de stad, raad het land' },
+    { k: 'mix', t: ['Mix'], ic: 'shuffle', sub: 'Beide door elkaar' }
 ];
 
 const PHOTOS = [
@@ -38,8 +38,10 @@ const PHOTOS = [
 ];
 const photoURL = p => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(p.f) + '?width=960';
 
+const APP_NAME = 'Flitskaart Europa';
 const BOX = { type: 'MultiPoint', coordinates: [[-11, 35], [33, 35], [-11, 66], [33, 66], [22, 69.5], [14, 34.5]] };
-let WORLD = [], EUSET = new Set(), mapState = 'loading';
+// LO: grove wereldkaart (snel geladen, voor heel Europa). HI: gedetailleerd, voor ingezoomde kaarten.
+let LO = null, HI = null, mapState = 'loading';
 
 const shuffle = a => {
     a = [...a];
@@ -50,7 +52,25 @@ const shuffle = a => {
     return a;
 };
 
-// o: { hl: land om in te kleuren, cap: [lon, lat] hoofdstadstip }
+// Kader rond een land plus een rand buurlanden. Overzeese stukjes (Frans-Guyana, Canarische
+// Eilanden, Madeira...) tellen niet mee: enkel grote delen dicht bij de hoofdstad.
+function zoomBox(c, f) {
+    let polys = [];
+    if (f) {
+        const all = (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates])
+            .map(p => ({ p, a: d3.geoArea({ type: 'Polygon', coordinates: p }) }));
+        const max = Math.max(...all.map(x => x.a));
+        polys = all.filter(x => x.a >= max * .02 && x.p[0].some(pt => d3.geoDistance(pt, c.cap) < .3)).map(x => x.p);
+    }
+    let [[x0, y0], [x1, y1]] = polys.length ? d3.geoBounds({ type: 'MultiPolygon', coordinates: polys }) : [c.cap, c.cap];
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    // Minimale breedte zodat er buurlanden op staan; mini-landen iets dichter, anders verdwijnen ze onder het stipje
+    const k = c.small ? .55 : 1;
+    const dx = Math.max((x1 - x0) * 1.7, 9 * k) / 2, dy = Math.max((y1 - y0) * 1.7, 5.5 * k) / 2;
+    return { center: [cx, cy], box: { type: 'MultiPoint', coordinates: [[cx - dx, cy - dy], [cx + dx, cy - dy], [cx - dx, cy + dy], [cx + dx, cy + dy]] } };
+}
+
+// o: { hl: land om in te kleuren, cap: [lon, lat] hoofdstadstip, zoom: land om op in te zoomen }
 function drawMap(el, o) {
     if (!el) return;
     if (mapState === 'error') {
@@ -60,21 +80,29 @@ function drawMap(el, o) {
     if (mapState !== 'ready') return;
     const w = el.clientWidth, h = el.clientHeight;
     if (!w || !h) return;
-    const proj = d3.geoAzimuthalEqualArea().rotate([-11, -52]).fitExtent([[10, 10], [w - 10, h - 10]], BOX).clipExtent([[0, 0], [w, h]]);
+    const A = o.zoom && HI ? HI : LO;
+    let proj = d3.geoAzimuthalEqualArea();
+    if (o.zoom) {
+        const z = zoomBox(o.zoom, A.byC.get(o.zoom));
+        proj.rotate([-z.center[0], -z.center[1]]).fitExtent([[10, 10], [w - 10, h - 10]], z.box);
+    } else {
+        proj.rotate([-11, -52]).fitExtent([[10, 10], [w - 10, h - 10]], BOX);
+    }
+    proj.clipExtent([[0, 0], [w, h]]);
     const path = d3.geoPath(proj);
-    const hf = o.hl && o.hl.f;
-    let s = `<svg class="map" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect class="sea" width="${w}" height="${h}"/><path class="grat" d="${path(d3.geoGraticule10())}"/>`;
-    for (const f of WORLD) {
+    const hf = o.hl && A.byC.get(o.hl);
+    let s = `<svg class="map${o.zoom ? ' zoom' : ''}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect class="sea" width="${w}" height="${h}"/><path class="grat" d="${path(d3.geoGraticule10())}"/>`;
+    for (const f of A.world) {
         if (f === hf) continue;
         const d = path(f);
-        if (d) s += `<path class="${EUSET.has(f) ? 'eu' : 'land'}" d="${d}"/>`;
+        if (d) s += `<path class="${A.eu.has(f) ? 'eu' : 'land'}" d="${d}"/>`;
     }
     if (hf) {
         const d = path(hf);
         if (d) s += `<path class="hl" d="${d}"/>`;
     }
     // Kleine landen zijn op deze schaal nauwelijks zichtbaar: markeer ze met een ring
-    if (o.hl && o.hl.small) {
+    if (o.hl && o.hl.small && !o.zoom) {
         const p = proj(o.hl.cap);
         s += `<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="8"/><circle class="ring" cx="${p[0]}" cy="${p[1]}" r="9"/><circle class="dot" cx="${p[0]}" cy="${p[1]}" r="3"/>`;
     }
@@ -122,7 +150,7 @@ class App {
     }
 
     act(a, v) {
-        if (a === 'tostart' || a === 'home') { this.view = 'start'; return this.render(); }
+        if (a === 'tostart' || a === 'home') { this.view = 'start'; this.heroC = C[Math.random() * C.length | 0]; return this.render(); }
         if (a === 'pick') { this.mode = v; this.start(); return this.render(); }
         if (a === 'restart') { this.start(); return this.render(); }
         if (a === 'filter') { this.filter = v; return this.render(); }
@@ -145,10 +173,17 @@ class App {
     }
 
     drawMaps() {
+        if (this.view === 'start') return drawMap(this.el.querySelector('[data-map-hero]'), { hl: this.heroC });
         if (this.view !== 'quiz') return;
         const q = this.order[this.i];
-        drawMap(this.el.querySelector('[data-map]'), q.dir === 'land' ? { hl: q.c } : { cap: q.c.cap });
-        if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap });
+        // Bij een hoofdstad-vraag zoomen we in op het land, anders is het stipje te klein
+        if (q.dir === 'land') {
+            drawMap(this.el.querySelector('[data-map]'), { hl: q.c });
+            if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap });
+        } else {
+            drawMap(this.el.querySelector('[data-map]'), { cap: q.c.cap, zoom: q.c });
+            if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap, zoom: q.c });
+        }
     }
 
     render() {
@@ -162,23 +197,28 @@ class App {
         return `<div class="splash fadein" data-act="tostart">
             <div class="hero"><img src="${photoURL(p)}" alt="${p.m}, ${p.c}"></div>
             <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px">
-                <span style="font-size:32px;font-weight:500;letter-spacing:-.02em;line-height:1.1">EU Hoofdsteden</span>
-                <span style="font-size:13px;opacity:.8">27 landen, 27 hoofdsteden</span>
+                <span class="brand" style="font-size:44px;text-align:center">Flitskaart<br>Europa</span>
+                <span style="font-size:14px;opacity:.85">Ken jij alle 27 hoofdsteden?</span>
             </div>
             <span style="position:absolute;z-index:1;bottom:calc(34px + var(--safe-bottom));font-size:11px;letter-spacing:.04em;opacity:.75">powered by <b style="font-weight:600;opacity:1">AchieveIT</b></span>
         </div>`;
     }
 
     startHTML() {
-        return `<div class="screen fadein" style="position:relative">
-            <div style="position:absolute;top:calc(28px + var(--safe-top));left:20px;right:20px;display:flex;flex-direction:column;gap:6px">
-                <span class="kicker">27 landen · 27 hoofdsteden</span>
-                <h1 style="font-size:38px">EU Hoofdsteden</h1>
+        return `<div class="screen fadein home">
+            <div class="deck" aria-hidden="true">
+                <div class="deck-card c1"></div><div class="deck-card c2"></div>
+                <div class="deck-card top"><div data-map-hero class="deck-map"></div></div>
             </div>
-            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px">
-                <span class="muted" style="font-size:13px">Kies hoe je wilt oefenen</span>${MODES.map(m => `
-                <button class="mode" data-act="pick" data-v="${m.k}">
-                    <span class="ic">${IC[m.ic]}</span><span class="t">${m.t.join(IC.arrow)}</span><span>${IC.arrow}</span>
+            <div class="home-title">
+                <h1 class="brand">${APP_NAME}</h1>
+                <span class="muted">Ken jij alle 27 hoofdsteden van de EU?</span>
+            </div>
+            <div class="modes">${MODES.map(m => `
+                <button class="mode m-${m.k}" data-act="pick" data-v="${m.k}">
+                    <span class="ic">${IC[m.ic]}</span>
+                    <span class="mt"><span class="t">${m.t.join(IC.arrow)}</span><span class="sub">${m.sub}</span></span>
+                    <span class="go">${IC.arrow}</span>
                 </button>`).join('')}
             </div>
         </div>`;
@@ -190,7 +230,7 @@ class App {
         const ask = land ? c.name : c.capital, ans = land ? c.capital : c.name;
         return `<div class="screen">
             <div class="topbar">
-                <div style="display:flex;flex-direction:column;line-height:1.2"><span class="title">EU Hoofdsteden</span><span class="muted" style="font-size:11px">${modeLabel(this.mode)}</span></div>
+                <div style="display:flex;flex-direction:column;line-height:1.2"><span class="title">${APP_NAME}</span><span class="muted" style="font-size:11px">${modeLabel(this.mode)}</span></div>
                 <button class="icon-btn" data-act="home" aria-label="Naar start">${IC.house}</button>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px">
@@ -212,7 +252,7 @@ class App {
                     <div data-map-back style="flex:1;min-height:0;opacity:.95"></div>
                     <div style="padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px">
                         <span class="kicker">${land ? 'Hoofdstad van ' + c.name : c.capital + ' ligt in'}</span>
-                        <span style="font-size:${ans.length > 10 ? 36 : 44}px;line-height:1.05;font-weight:500;letter-spacing:-.02em;color:var(--accent-ink)">${ans}</span>
+                        <span style="font-size:${ans.length > 10 ? 36 : 44}px;line-height:1.05;font-family:'Bricolage Grotesque',Inter,sans-serif;font-weight:700;letter-spacing:-.025em;color:var(--accent-ink)">${ans}</span>
                         <span class="muted" style="font-size:13px;margin-top:8px">Had je het goed?</span>
                     </div>
                 </div>
@@ -235,7 +275,7 @@ class App {
             }).join('')}</div>`
             : '<div class="list" style="display:flex;align-items:center;justify-content:center;flex:none;height:80px"><span style="color:var(--ok);font-weight:500">Geen fouten in deze ronde.</span></div><div style="flex:1"></div>';
         return `<div class="screen fadein" style="gap:14px">
-            <div class="topbar"><span class="title">EU Hoofdsteden</span><button class="icon-btn" data-act="home" aria-label="Naar start">${IC.house}</button></div>
+            <div class="topbar"><span class="title">${APP_NAME}</span><button class="icon-btn" data-act="home" aria-label="Naar start">${IC.house}</button></div>
             <div style="display:flex;flex-direction:column;gap:4px">
                 <span class="kicker">Ronde klaar · ${modeLabel(this.mode)}</span>
                 <div style="font-size:64px;font-weight:500;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums">${this.goed}<span class="muted" style="font-size:26px;letter-spacing:0"> / ${this.n}</span></div>
@@ -263,16 +303,24 @@ const app = new App(document.getElementById('app'));
 app.render();
 PHOTOS.forEach(p => { new Image().src = photoURL(p); });
 
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+const loadAtlas = file => fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/' + file)
     .then(r => r.json())
     .then(topo => {
-        WORLD = topojson.feature(topo, topo.objects.countries).features;
+        const world = topojson.feature(topo, topo.objects.countries).features, byC = new Map();
         for (const c of C) {
-            c.f = WORLD.find(f => f.id === c.id || f.properties.name === c.en) || null;
-            if (c.f) EUSET.add(c.f);
+            const f = world.find(f => f.id === c.id || f.properties.name === c.en);
+            if (f) byC.set(c, f);
         }
+        return { world, byC, eu: new Set(byC.values()) };
+    });
+
+loadAtlas('countries-110m.json')
+    .then(a => {
+        LO = a;
         mapState = 'ready';
         app.drawMaps();
+        // Daarna op de achtergrond de gedetailleerde kaart voor het inzoomen
+        return loadAtlas('countries-50m.json').then(h => { HI = h; app.drawMaps(); }, err => console.warn('Detailkaart kon niet laden:', err));
     })
     .catch(err => {
         console.error('Kaart kon niet laden:', err);
