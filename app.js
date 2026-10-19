@@ -184,7 +184,7 @@ class App {
             drawMap(back, { hl: q.c, cap: q.c.cap, zoom: q.c });
         } else {
             drawMap(front, { cap: q.c.cap, zoom: q.c });
-            drawMap(back, { hl: q.c, cap: q.c.cap });
+            drawMap(back, { hl: q.c });
         }
     }
 
