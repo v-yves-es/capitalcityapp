@@ -85,11 +85,6 @@ function drawMap(el, o) {
     if (o.zoom) {
         const z = zoomBox(o.zoom, A.byC.get(o.zoom));
         proj.rotate([-z.center[0], -z.center[1]]).fitExtent([[10, 10], [w - 10, h - 10]], z.box);
-    } else if (o.route) {
-        // Ingezoomd op de route, met wat marge zodat de buurlanden zichtbaar zijn
-        const xs = o.route.map(c => c.cap[0]), ys = o.route.map(c => c.cap[1]);
-        const box = [[Math.min(...xs) - 4, Math.min(...ys) - 3], [Math.max(...xs) + 4, Math.max(...ys) + 3]];
-        proj.rotate([-(box[0][0] + box[1][0]) / 2, -(box[0][1] + box[1][1]) / 2]).fitExtent([[16, 16], [w - 16, h - 16]], { type: 'MultiPoint', coordinates: box });
     } else {
         proj.rotate([-11, -52]).fitExtent([[10, 10], [w - 10, h - 10]], BOX);
     }
@@ -112,20 +107,16 @@ function drawMap(el, o) {
         const p = proj(o.hl.cap);
         s += `<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="8"/><circle class="ring" cx="${p[0]}" cy="${p[1]}" r="9"/><circle class="dot" cx="${p[0]}" cy="${p[1]}" r="3"/>`;
     }
-    // Startscherm: een vliegtuigje dat langs een paar hoofdsteden reist
+    // Startscherm: een vliegtuigje dat langs een paar hoofdsteden reist (bewogen door flyRoute)
     if (o.route) {
         const pts = o.route.map(c => proj(c.cap));
-        let d = `M${pts[0]}`;
         for (let i = 1; i < pts.length; i++) {
             const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
-            d += `Q${(x0 + x1) / 2 + (y1 - y0) * .3},${(y0 + y1) / 2 - (x1 - x0) * .3} ${x1},${y1}`;
+            s += `<path class="route" d="M${x0},${y0}Q${(x0 + x1) / 2 + (y1 - y0) * .3},${(y0 + y1) / 2 - (x1 - x0) * .3} ${x1},${y1}"/>`;
         }
-        s += `<path id="route" class="route" d="${d}"/>`;
         s += pts.map(([x, y]) => `<circle class="stop" cx="${x}" cy="${y}" r="4.5"/>`).join('');
-        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        s += still
-            ? `<path class="plane" d="M9,0 L-7,-7 L-3,0 L-7,7 Z" transform="translate(${pts[0]})"/>`
-            : '<path class="plane" d="M9,0 L-7,-7 L-3,0 L-7,7 Z"><animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#route"/></animateMotion></path>';
+        s += o.route.map((c, i) => `<g class="lbl" transform="translate(${pts[i]})"><text class="lbl-c" y="-24">${c.capital}</text><text class="lbl-l" y="-11">${c.name}</text></g>`).join('');
+        s += `<path class="plane" d="M9,0 L-7,-7 L-3,0 L-7,7 Z" transform="translate(${pts[0]})"/>`;
     }
     if (o.cap) {
         const p = proj(o.cap);
@@ -182,6 +173,48 @@ function fireworks(host) {
         g.globalAlpha = 1;
         if (rockets.some(r => !r.done) || sparks.some(p => p.life > 0)) requestAnimationFrame(frame);
         else cv.remove();
+    })(t0);
+}
+
+// Het vliegtuigje vliegt van hoofdstad naar hoofdstad en wacht telkens even, met de naam van stad en land erbij
+function flyRoute(svg) {
+    if (!svg) return;
+    const segs = [...svg.querySelectorAll('.route')], plane = svg.querySelector('.plane'), lbls = [...svg.querySelectorAll('.lbl')];
+    if (!plane || !segs.length) return;
+    // Namen aan de rand van de kaart naar binnen schuiven
+    const W = +svg.getAttribute('width');
+    for (const l of lbls) {
+        const b = l.getBBox(), m = l.transform.baseVal.consolidate().matrix;
+        const dx = Math.max(8 - (m.e + b.x), 0) + Math.min(W - 8 - (m.e + b.x + b.width), 0);
+        if (dx) l.setAttribute('transform', `translate(${m.e + dx},${m.f})`);
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return lbls.forEach(l => l.classList.add('on'));
+    const STAY = 1800, FLY = 1900, lens = segs.map(p => p.getTotalLength());
+    const cycle = segs.length * (STAY + FLY) + STAY + 500;
+    const ease = x => x < .5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2;
+    const at = (k, l) => {
+        const p = segs[k].getPointAtLength(l), q = segs[k].getPointAtLength(Math.min(l + 1, lens[k])), r = segs[k].getPointAtLength(Math.max(l - 1, 0));
+        return [p.x, p.y, Math.atan2(q.y - r.y, q.x - r.x) * 180 / Math.PI];
+    };
+    const t0 = performance.now();
+    (function frame(now) {
+        if (!svg.isConnected) return;
+        const t = Math.max(now - t0, 0) % cycle, i = Math.min(Math.floor(t / (STAY + FLY)), segs.length), u = t - i * (STAY + FLY);
+        let pos, on = -1, vis = 1;
+        if (i === segs.length) {
+            pos = at(i - 1, lens[i - 1]);
+            if (u < STAY) on = i; else vis = 0;
+        } else if (u < STAY) {
+            pos = at(i, 0); on = i;
+        } else {
+            const f = ease((u - STAY) / FLY);
+            pos = at(i, f * lens[i]);
+            on = f < .12 ? i : f > .9 ? i + 1 : -1;
+        }
+        plane.setAttribute('transform', `translate(${pos[0]},${pos[1]}) rotate(${pos[2]})`);
+        plane.style.opacity = vis;
+        lbls.forEach((l, k) => l.classList.toggle('on', k === on));
+        requestAnimationFrame(frame);
     })(t0);
 }
 
@@ -246,7 +279,11 @@ class App {
     }
 
     drawMaps() {
-        if (this.view === 'start') return drawMap(this.el.querySelector('[data-map-hero]'), { route: this.route });
+        if (this.view === 'start') {
+            const el = this.el.querySelector('[data-map-hero]');
+            drawMap(el, { route: this.route });
+            return flyRoute(el && el.querySelector('svg'));
+        }
         if (this.view !== 'quiz') return;
         const q = this.order[this.i];
         // Staat er een land op de kaart: heel Europa. Staat er een hoofdstad: ingezoomd op dat land.
@@ -280,9 +317,6 @@ class App {
 
     startHTML() {
         return `<div class="screen fadein home">
-            <div class="deck" aria-hidden="true">
-                <div class="deck-card"><div data-map-hero class="deck-map"></div></div>
-            </div>
             <div class="home-title">
                 <h1 class="brand">${APP_NAME}</h1>
                 <span class="muted">Ken je alle 27 hoofdsteden?</span>
@@ -291,6 +325,9 @@ class App {
                 <button class="mode" data-act="pick" data-v="${m.k}">
                     <span class="ic">${IC[m.ic]}</span><span class="t">${m.t.join(IC.arrow)}</span>
                 </button>`).join('')}
+            </div>
+            <div class="deck" aria-hidden="true">
+                <div class="deck-card"><div data-map-hero class="deck-map"></div></div>
             </div>
         </div>`;
     }

@@ -51,27 +51,27 @@ button { font: inherit; color: inherit; }
 .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 70% at 30% 20%, #7a6ce0, var(--accent) 45%, #2f2580); opacity: .82; }
 
-/* Startscherm: een stapeltje flitskaarten met de kaart van Europa */
-.home { gap: 0; justify-content: space-between; padding-top: calc(28px + var(--safe-top)); }
-.deck { position: relative; height: clamp(130px, 26dvh, 210px); }
+/* Startscherm: titel, keuzeknoppen en een grote kaart met een reizend vliegtuigje */
+.home { gap: 0; padding-top: calc(24px + var(--safe-top)); }
+.deck { position: relative; flex: 1; min-height: 170px; margin-top: 22px; }
 .deck-card { position: absolute; inset: 0; border-radius: 22px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); overflow: hidden; animation: deal .7s cubic-bezier(.3, 1.4, .5, 1) both; }
 .deck-map { width: 100%; height: 100%; }
 @keyframes deal { from { transform: translateY(16px); opacity: 0; } }
-.home-title { display: flex; flex-direction: column; gap: 8px; margin-top: 26px; }
-.home-title h1 { font-size: clamp(40px, 12vw, 50px); }
+.home-title { display: flex; flex-direction: column; gap: 4px; }
+.home-title h1 { font-size: 34px; }
 .home-title .muted { font-size: 15px; }
-.modes { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+.modes { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
 
 /* Grote, tactiele keuzeknoppen die indrukken als je tikt */
-.mode { display: flex; align-items: center; gap: 18px; padding: 0 26px; min-height: 116px; width: 100%; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); cursor: pointer; text-align: left; transition: transform .08s, box-shadow .08s, border-color .15s; }
+.mode { display: flex; align-items: center; gap: 18px; padding: 0 24px; min-height: 92px; width: 100%; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); cursor: pointer; text-align: left; transition: transform .08s, box-shadow .08s, border-color .15s; }
 .mode:hover { border-color: var(--accent-soft); }
 .mode:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--press); }
 .mode .ic { display: flex; color: var(--accent); flex: none; }
-.mode .ic svg { width: 40px; height: 40px; }
-.mode .t { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; display: flex; align-items: center; gap: 8px; }
+.mode .ic svg { width: 36px; height: 36px; }
+.mode .t { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; display: flex; align-items: center; gap: 8px; }
 .mode .t svg { width: 18px; height: 18px; color: var(--muted); }
 @media (max-width: 360px) { .mode { padding: 0 18px; gap: 14px; } .mode .t { font-size: 22px; } .mode .ic svg { width: 34px; height: 34px; } }
-@media (max-height: 640px) { .deck { display: none; } .home-title { margin-top: 8px; } }
+@media (max-height: 640px) { .deck { display: none; } }
 @media (prefers-reduced-motion: reduce) { .deck-card { animation: none; } }
 
 /* Voortgang */
@@ -127,7 +127,11 @@ svg.map { display: block; }
 .map .dot { fill: var(--accent); }
 .map .route { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 1 6; stroke-linecap: round; }
 .map .stop { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
-.map .plane { fill: var(--accent); stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
+.map .lbl { opacity: 0; transition: opacity .3s; text-anchor: middle; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.map .lbl.on { opacity: 1; }
+.map .lbl-c { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 17px; font-weight: 800; fill: var(--accent-ink); }
+.map .lbl-l { font-size: 11px; font-weight: 500; fill: var(--muted); }
+.map .plane { transition: opacity .3s; fill: var(--accent); stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
 .map .cap { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
 .map.zoom .land, .map.zoom .eu { stroke-width: 1; }
 .map-error { display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; background: var(--sea); }
