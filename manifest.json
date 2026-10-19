@@ -1,6 +1,6 @@
 {
-  "name": "Flitskaart Europa",
-  "short_name": "Flitskaart EU",
+  "name": "EU Hoofdsteden",
+  "short_name": "EU Hoofdsteden",
   "description": "Flitskaarten om alle 27 EU-landen en hun hoofdsteden te leren",
   "start_url": "/capitalcityapp/",
   "scope": "/capitalcityapp/",

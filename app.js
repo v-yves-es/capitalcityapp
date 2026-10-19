@@ -24,9 +24,9 @@ const C = [
 ].map(([name, capital, id, en, cap, small]) => ({ name, capital, id, en, cap, small }));
 
 const MODES = [
-    { k: 'land', t: ['Land', 'Hoofdstad'], ic: 'map', sub: 'Zie het land, raad de hoofdstad' },
-    { k: 'stad', t: ['Hoofdstad', 'Land'], ic: 'building', sub: 'Zie de stad, raad het land' },
-    { k: 'mix', t: ['Mix'], ic: 'shuffle', sub: 'Beide door elkaar' }
+    { k: 'land', t: ['Land', 'Hoofdstad'], ic: 'map' },
+    { k: 'stad', t: ['Hoofdstad', 'Land'], ic: 'building' },
+    { k: 'mix', t: ['Mix'], ic: 'shuffle' }
 ];
 
 const PHOTOS = [
@@ -38,7 +38,7 @@ const PHOTOS = [
 ];
 const photoURL = p => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(p.f) + '?width=960';
 
-const APP_NAME = 'Flitskaart Europa';
+const APP_NAME = 'EU Hoofdsteden';
 const BOX = { type: 'MultiPoint', coordinates: [[-11, 35], [33, 35], [-11, 66], [33, 66], [22, 69.5], [14, 34.5]] };
 // LO: grove wereldkaart (snel geladen, voor heel Europa). HI: gedetailleerd, voor ingezoomde kaarten.
 let LO = null, HI = null, mapState = 'loading';
@@ -99,7 +99,8 @@ function drawMap(el, o) {
     }
     if (hf) {
         const d = path(hf);
-        if (d) s += `<path class="hl" d="${d}"/>`;
+        // Met een hoofdstadstip erop een lichter paars, anders vallen de cirkeltjes weg
+        if (d) s += `<path class="hl${o.cap ? ' soft' : ''}" d="${d}"/>`;
     }
     // Kleine landen zijn op deze schaal nauwelijks zichtbaar: markeer ze met een ring
     if (o.hl && o.hl.small && !o.zoom) {
@@ -176,13 +177,14 @@ class App {
         if (this.view === 'start') return drawMap(this.el.querySelector('[data-map-hero]'), { hl: this.heroC });
         if (this.view !== 'quiz') return;
         const q = this.order[this.i];
-        // Bij een hoofdstad-vraag zoomen we in op het land, anders is het stipje te klein
+        // Staat er een land op de kaart: heel Europa. Staat er een hoofdstad: ingezoomd op dat land.
+        const front = this.el.querySelector('[data-map]'), back = this.rev && this.el.querySelector('[data-map-back]');
         if (q.dir === 'land') {
-            drawMap(this.el.querySelector('[data-map]'), { hl: q.c });
-            if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap });
+            drawMap(front, { hl: q.c });
+            drawMap(back, { hl: q.c, cap: q.c.cap, zoom: q.c });
         } else {
-            drawMap(this.el.querySelector('[data-map]'), { cap: q.c.cap, zoom: q.c });
-            if (this.rev) drawMap(this.el.querySelector('[data-map-back]'), { hl: q.c, cap: q.c.cap, zoom: q.c });
+            drawMap(front, { cap: q.c.cap, zoom: q.c });
+            drawMap(back, { hl: q.c, cap: q.c.cap });
         }
     }
 
@@ -197,8 +199,8 @@ class App {
         return `<div class="splash fadein" data-act="tostart">
             <div class="hero"><img src="${photoURL(p)}" alt="${p.m}, ${p.c}"></div>
             <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px">
-                <span class="brand" style="font-size:44px;text-align:center">Flitskaart<br>Europa</span>
-                <span style="font-size:14px;opacity:.85">Ken jij alle 27 hoofdsteden?</span>
+                <span class="brand" style="font-size:44px;text-align:center">${APP_NAME}</span>
+                <span style="font-size:14px;opacity:.85">Ken je alle 27 hoofdsteden?</span>
             </div>
             <span style="position:absolute;z-index:1;bottom:calc(34px + var(--safe-bottom));font-size:11px;letter-spacing:.04em;opacity:.75">powered by <b style="font-weight:600;opacity:1">AchieveIT</b></span>
         </div>`;
@@ -212,13 +214,11 @@ class App {
             </div>
             <div class="home-title">
                 <h1 class="brand">${APP_NAME}</h1>
-                <span class="muted">Ken jij alle 27 hoofdsteden van de EU?</span>
+                <span class="muted">Ken je alle 27 hoofdsteden?</span>
             </div>
             <div class="modes">${MODES.map(m => `
-                <button class="mode m-${m.k}" data-act="pick" data-v="${m.k}">
-                    <span class="ic">${IC[m.ic]}</span>
-                    <span class="mt"><span class="t">${m.t.join(IC.arrow)}</span><span class="sub">${m.sub}</span></span>
-                    <span class="go">${IC.arrow}</span>
+                <button class="mode" data-act="pick" data-v="${m.k}">
+                    <span class="ic">${IC[m.ic]}</span><span class="t">${m.t.join(IC.arrow)}</span>
                 </button>`).join('')}
             </div>
         </div>`;

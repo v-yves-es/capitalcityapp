@@ -2,7 +2,7 @@
     --bg: #ecebe6; --screen: #f7f6f2; --surface: #ffffff; --text: #1d1e27; --muted: #6c6e7a; --line: #e2e1dc;
     --accent: #5a4cc8; --accent-ink: #3d3196; --accent-tint: #eeecfb; --accent-soft: #c9c3f2;
     --fout: #8a8c97; --ok: #23925a; --ok-tint: #e6f4ec; --nok: #d0413a; --nok-tint: #fbe9e7;
-    --sun: #ffc93c; --sun-ink: #8a5a00; --sun-tint: #fff4d6; --mint: #2fbf8a; --mint-tint: #dff6ec; --press: #d9d7cf;
+    --sun: #ffc93c; --press: #d9d7cf;
     --sea: #eef1f5; --land: #e3e4e8; --eu: #d3d6e0; --grat: #e3e7ee;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -66,20 +66,14 @@ button { font: inherit; color: inherit; }
 .modes { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
 
 /* Grote, tactiele keuzeknoppen die indrukken als je tikt */
-.mode { display: flex; align-items: center; gap: 16px; padding: 14px 18px 14px 14px; min-height: 84px; width: 100%; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); cursor: pointer; text-align: left; transition: transform .08s, box-shadow .08s, border-color .15s; }
+.mode { display: flex; align-items: center; gap: 18px; padding: 0 26px; min-height: 116px; width: 100%; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--press); cursor: pointer; text-align: left; transition: transform .08s, box-shadow .08s, border-color .15s; }
 .mode:hover { border-color: var(--accent-soft); }
 .mode:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--press); }
-.mode .ic { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex: none; }
-.mode .ic svg { width: 28px; height: 28px; }
-.m-land .ic { background: var(--accent-tint); color: var(--accent); }
-.m-stad .ic { background: var(--sun-tint); color: var(--sun-ink); }
-.m-mix .ic { background: var(--mint-tint); color: #17885f; }
-.mode .mt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.mode .t { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -.01em; line-height: 1.15; display: flex; align-items: center; gap: 6px; }
-.mode .t svg { width: 15px; height: 15px; color: var(--muted); }
-.mode .sub { font-size: 13px; color: var(--muted); line-height: 1.3; }
-.mode .go { margin-left: auto; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
-.mode .go svg { width: 18px; height: 18px; }
+.mode .ic { display: flex; color: var(--accent); flex: none; }
+.mode .ic svg { width: 40px; height: 40px; }
+.mode .t { font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; display: flex; align-items: center; gap: 8px; }
+.mode .t svg { width: 18px; height: 18px; color: var(--muted); }
+@media (max-width: 360px) { .mode { padding: 0 18px; gap: 14px; } .mode .t { font-size: 22px; } .mode .ic svg { width: 34px; height: 34px; } }
 @media (max-height: 640px) { .deck { display: none; } .home-title { margin-top: 8px; } }
 @media (prefers-reduced-motion: reduce) { .deck-card.top { animation: none; } }
 
@@ -129,8 +123,9 @@ svg.map { display: block; }
 .map .land { fill: var(--land); stroke: #f4f5f8; stroke-width: .6; }
 .map .eu { fill: var(--eu); stroke: #f4f5f8; stroke-width: .7; }
 .map .hl { fill: var(--accent); stroke: #fff; stroke-width: 1; }
+.map .hl.soft { fill: #d6d0f7; stroke: var(--accent); stroke-width: 1.2; }
 .map .ring { fill: none; stroke: var(--accent); stroke-width: 1.5; }
-.map .pulse { fill: none; stroke: var(--accent); stroke-width: 1.5; animation: pulse 1.6s ease-out infinite; }
+.map .pulse { fill: none; stroke: var(--accent); stroke-width: 2; animation: pulse 1.6s ease-out infinite; }
 .map .dot { fill: var(--accent); }
 .map .cap { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
 .map.zoom .land, .map.zoom .eu { stroke-width: 1; }
